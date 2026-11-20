@@ -1,0 +1,425 @@
+{
+  "currentUser": {
+    "id": "user-me",
+    "name": "Elena Vance",
+    "age": 29,
+    "homeCity": "Seattle, USA",
+    "initials": "EV",
+    "avatarGradient": "linear-gradient(135deg, #0ea5a4, #0284c7)",
+    "bio": "Architect and coastal hiker looking for easygoing travel companions to split boutique stays, sunset ferries, and local food walks.",
+    "languages": [
+      "English",
+      "Spanish"
+    ],
+    "travelStyles": [
+      "Photography",
+      "Foodie",
+      "Slow Travel"
+    ],
+    "pace": "Balanced",
+    "budgetTier": "Mid-Range",
+    "verifiedEmail": true,
+    "verifiedId": true,
+    "tripsCompleted": 4
+  },
+  "destinations": [
+    {
+      "id": "dest-santorini",
+      "name": "Santorini",
+      "country": "Greece",
+      "region": "Cyclades Islands",
+      "category": "Coastal",
+      "bestMonths": "May – June, Sep – Oct",
+      "summary": "Cliffside Cycladic villages, volcanic caldera sailing, and terracotta beaches ideal for sharing sunset villas and island catamarans.",
+      "heroImageUrl": "/src/assets/images/santorini_oia_1794980888493.jpg",
+      "famousPlaces": [
+        {
+          "id": "place-oia",
+          "name": "Oia Blue Domes & Caldera Walk",
+          "imageUrl": "/src/assets/images/santorini_oia_1794980888493.jpg",
+          "description": "Marble footpaths winding past whitewashed cave houses and panoramic Aegean caldera viewpoints.",
+          "bestTime": "Sunrise or 1 hour before sunset",
+          "ticketCostUsd": 0
+        },
+        {
+          "id": "place-red-beach",
+          "name": "Akrotiri Red Beach Cove",
+          "imageUrl": "/src/assets/images/santorini_red_beach_1794980887928.jpg",
+          "description": "Dramatic iron-rich volcanic sea cliffs framing clear turquoise swimming water near ancient Akrotiri.",
+          "bestTime": "Morning (9:00 AM – 11:30 AM)",
+          "ticketCostUsd": 18
+        }
+      ],
+      "budgetTemplate": {
+        "lodgingPerNightUsd": 240,
+        "roomCapacity": 4,
+        "sharedTransportPerDayUsd": 65,
+        "guideTourTotalUsd": 180,
+        "foodPerDayUsd": 58,
+        "localTransitPerDayUsd": 14,
+        "defaultDays": 6
+      }
+    },
+    {
+      "id": "dest-kyoto",
+      "name": "Kyoto",
+      "country": "Japan",
+      "region": "Kansai Region",
+      "category": "Cultural",
+      "bestMonths": "Mar – May, Oct – Nov",
+      "summary": "Centuries-old shrines, cedar mountain trails, and serene wooden machiya townhouses where splitting multi-bedroom stays cuts lodging nearly in half.",
+      "heroImageUrl": "/src/assets/images/kyoto_fushimi_1794980888853.jpg",
+      "famousPlaces": [
+        {
+          "id": "place-fushimi",
+          "name": "Fushimi Inari Taisha Gates",
+          "imageUrl": "/src/assets/images/kyoto_fushimi_1794980888853.jpg",
+          "description": "Thousands of vermilion torii gates ascending wooded Mount Inari with quiet shrines along the ridge.",
+          "bestTime": "Early morning (6:30 AM – 8:30 AM)",
+          "ticketCostUsd": 0
+        },
+        {
+          "id": "place-kinkakuji",
+          "name": "Kinkaku-ji Golden Pavilion",
+          "imageUrl": "/src/assets/images/kyoto_kinkakuji_1794980888028.jpg",
+          "description": "Gold-leaf Zen pavilion reflected across Kyoko-chi mirror pond surrounded by maple and pine gardens.",
+          "bestTime": "Late afternoon light",
+          "ticketCostUsd": 12
+        }
+      ],
+      "budgetTemplate": {
+        "lodgingPerNightUsd": 210,
+        "roomCapacity": 3,
+        "sharedTransportPerDayUsd": 50,
+        "guideTourTotalUsd": 140,
+        "foodPerDayUsd": 48,
+        "localTransitPerDayUsd": 16,
+        "defaultDays": 7
+      }
+    },
+    {
+      "id": "dest-amalfi",
+      "name": "Amalfi Coast",
+      "country": "Italy",
+      "region": "Campania",
+      "category": "Coastal",
+      "bestMonths": "May – June, September",
+      "summary": "Vertical lemon-grove villages, cliffside belvederes, and coastal boat charters designed for small groups sharing private drivers and villas.",
+      "heroImageUrl": "/src/assets/images/amalfi_positano_1794980888483.jpg",
+      "famousPlaces": [
+        {
+          "id": "place-positano",
+          "name": "Positano Cliffside & Spiaggia Grande",
+          "imageUrl": "/src/assets/images/amalfi_positano_1794980888483.jpg",
+          "description": "Stacked pastel hillside terraces overlooking the Tyrrhenian cove, artisan linen alleys, and ferry pier.",
+          "bestTime": "Late afternoon golden hour",
+          "ticketCostUsd": 0
+        },
+        {
+          "id": "place-ravello",
+          "name": "Villa Cimbrone Terrace, Ravello",
+          "imageUrl": "/src/assets/images/amalfi_ravello_1794980890637.jpg",
+          "description": "Historic stone infinity belvedere lined with marble busts perched 365 meters above the coastline.",
+          "bestTime": "Morning before tour buses arrive",
+          "ticketCostUsd": 15
+        }
+      ],
+      "budgetTemplate": {
+        "lodgingPerNightUsd": 270,
+        "roomCapacity": 4,
+        "sharedTransportPerDayUsd": 85,
+        "guideTourTotalUsd": 220,
+        "foodPerDayUsd": 64,
+        "localTransitPerDayUsd": 18,
+        "defaultDays": 5
+      }
+    },
+    {
+      "id": "dest-banff",
+      "name": "Banff & Lake Louise",
+      "country": "Canada",
+      "region": "Alberta Rockies",
+      "category": "Alpine",
+      "bestMonths": "June – September",
+      "summary": "Glacial turquoise lakes, alpine ridge trails, and cozy timber lodges where sharing an SUV and mountain cabin dramatically lowers daily costs.",
+      "heroImageUrl": "/src/assets/images/banff_moraine_1794980889229.jpg",
+      "famousPlaces": [
+        {
+          "id": "place-moraine",
+          "name": "Moraine Lake & Ten Peaks",
+          "imageUrl": "/src/assets/images/banff_moraine_1794980889229.jpg",
+          "description": "Electric-blue glacially fed lake mirroring jagged Rocky Mountain peaks and larch forest trails.",
+          "bestTime": "Dawn for mirror-calm reflections",
+          "ticketCostUsd": 20
+        },
+        {
+          "id": "place-sulphur",
+          "name": "Sulphur Mountain Ridge Boardwalk",
+          "imageUrl": "/src/assets/images/banff_gondola_1794980891283.jpg",
+          "description": "Elevated alpine timber boardwalk linking panoramic viewpoints across the Bow Valley.",
+          "bestTime": "Clear morning skies",
+          "ticketCostUsd": 48
+        }
+      ],
+      "budgetTemplate": {
+        "lodgingPerNightUsd": 260,
+        "roomCapacity": 4,
+        "sharedTransportPerDayUsd": 95,
+        "guideTourTotalUsd": 130,
+        "foodPerDayUsd": 55,
+        "localTransitPerDayUsd": 12,
+        "defaultDays": 5
+      }
+    }
+  ],
+  "travelers": [
+    {
+      "id": "trav-1",
+      "name": "Marcus Reyes",
+      "age": 31,
+      "homeCity": "Austin, USA",
+      "initials": "MR",
+      "avatarGradient": "linear-gradient(135deg, #f97316, #e11d48)",
+      "bio": "Product photographer planning early-morning shoots in Oia and a shared catamaran sail around the caldera. Happy to handle route logistics.",
+      "languages": [
+        "English",
+        "Spanish"
+      ],
+      "travelStyles": [
+        "Photography",
+        "Slow Travel",
+        "Foodie"
+      ],
+      "pace": "Balanced",
+      "budgetTier": "Mid-Range",
+      "verifiedEmail": true,
+      "verifiedId": true,
+      "tripsCompleted": 6
+    },
+    {
+      "id": "trav-2",
+      "name": "Sora Takahashi",
+      "age": 27,
+      "homeCity": "Vancouver, Canada",
+      "initials": "ST",
+      "avatarGradient": "linear-gradient(135deg, #6366f1, #0ea5a4)",
+      "bio": "Tea enthusiast and urban sketcher visiting Kyoto shrines and Uji teahouses. Looking for 2–3 respectful companions to share a traditional machiya.",
+      "languages": [
+        "English",
+        "Japanese"
+      ],
+      "travelStyles": [
+        "Culture",
+        "Slow Travel",
+        "Foodie"
+      ],
+      "pace": "Relaxed",
+      "budgetTier": "Mid-Range",
+      "verifiedEmail": true,
+      "verifiedId": true,
+      "tripsCompleted": 5
+    },
+    {
+      "id": "trav-3",
+      "name": "Clara Lindqvist",
+      "age": 33,
+      "homeCity": "Stockholm, Sweden",
+      "initials": "CL",
+      "avatarGradient": "linear-gradient(135deg, #10b981, #0284c7)",
+      "bio": "Trail runner and architectural history fan heading to the Amalfi Coast. Hoping to split a private driver from Naples and hike Path of the Gods.",
+      "languages": [
+        "English",
+        "Swedish",
+        "Italian"
+      ],
+      "travelStyles": [
+        "Adventure",
+        "Photography",
+        "Culture"
+      ],
+      "pace": "Active",
+      "budgetTier": "Comfort",
+      "verifiedEmail": true,
+      "verifiedId": true,
+      "tripsCompleted": 8
+    },
+    {
+      "id": "trav-4",
+      "name": "Devon Brooks",
+      "age": 28,
+      "homeCity": "Denver, USA",
+      "initials": "DB",
+      "avatarGradient": "linear-gradient(135deg, #0284c7, #4f46e5)",
+      "bio": "Renting an AWD SUV out of Calgary for Banff & Lake Louise sunrise hikes. Seeking 2–3 fellow hikers to split fuel, park passes, and a timber chalet.",
+      "languages": [
+        "English"
+      ],
+      "travelStyles": [
+        "Adventure",
+        "Photography"
+      ],
+      "pace": "Active",
+      "budgetTier": "Mid-Range",
+      "verifiedEmail": true,
+      "verifiedId": false,
+      "tripsCompleted": 3
+    },
+    {
+      "id": "trav-5",
+      "name": "Nadia Al-Mansoor",
+      "age": 30,
+      "homeCity": "London, UK",
+      "initials": "NA",
+      "avatarGradient": "linear-gradient(135deg, #ec4899, #8b5cf6)",
+      "bio": "Culinary writer mapping out tavernas in Santorini and sunset cliff walks. Looking for friendly solo travelers who love long dinners and morning swims.",
+      "languages": [
+        "English",
+        "Arabic",
+        "French"
+      ],
+      "travelStyles": [
+        "Foodie",
+        "Slow Travel",
+        "Culture"
+      ],
+      "pace": "Relaxed",
+      "budgetTier": "Mid-Range",
+      "verifiedEmail": true,
+      "verifiedId": true,
+      "tripsCompleted": 7
+    },
+    {
+      "id": "trav-6",
+      "name": "Liam O’Connor",
+      "age": 26,
+      "homeCity": "Dublin, Ireland",
+      "initials": "LO",
+      "avatarGradient": "linear-gradient(135deg, #14b8a6, #22c55e)",
+      "bio": "Backpacking Kansai on a smart budget—early Fushimi Inari hikes, Nishiki Market street food, and day trips to Nara.",
+      "languages": [
+        "English"
+      ],
+      "travelStyles": [
+        "Adventure",
+        "Foodie",
+        "Budget"
+      ],
+      "pace": "Active",
+      "budgetTier": "Budget",
+      "verifiedEmail": true,
+      "verifiedId": true,
+      "tripsCompleted": 4
+    }
+  ],
+  "tripIntents": [
+    {
+      "id": "intent-1",
+      "travelerId": "trav-1",
+      "destinationId": "dest-santorini",
+      "startDate": "2027-05-14",
+      "endDate": "2027-05-20",
+      "budgetTier": "Mid-Range",
+      "maxGroupSize": 4,
+      "currentGroupSize": 2,
+      "note": "Found a 2-bedroom caldera terrace near Imerovigli—looking for 2 more to split lodging and a sunset boat charter.",
+      "createdAt": "2026-11-12T10:30:00Z"
+    },
+    {
+      "id": "intent-2",
+      "travelerId": "trav-5",
+      "destinationId": "dest-santorini",
+      "startDate": "2027-05-15",
+      "endDate": "2027-05-21",
+      "budgetTier": "Mid-Range",
+      "maxGroupSize": 4,
+      "currentGroupSize": 1,
+      "note": "Focused on Red Beach, Akrotiri ruins, and seaside tavernas. Flexible on splitting a rental car from the port.",
+      "createdAt": "2026-11-14T15:10:00Z"
+    },
+    {
+      "id": "intent-3",
+      "travelerId": "trav-2",
+      "destinationId": "dest-kyoto",
+      "startDate": "2027-04-10",
+      "endDate": "2027-04-17",
+      "budgetTier": "Mid-Range",
+      "maxGroupSize": 3,
+      "currentGroupSize": 1,
+      "note": "Early starts at Fushimi Inari before crowds, then slow afternoons in Higashiyama cafes and Kinkaku-ji.",
+      "createdAt": "2026-11-11T09:00:00Z"
+    },
+    {
+      "id": "intent-4",
+      "travelerId": "trav-6",
+      "destinationId": "dest-kyoto",
+      "startDate": "2027-04-12",
+      "endDate": "2027-04-18",
+      "budgetTier": "Budget",
+      "maxGroupSize": 4,
+      "currentGroupSize": 2,
+      "note": "Splitting a clean 4-bed guesthouse near Kyoto Station and sharing ramen & Nishiki market tastings.",
+      "createdAt": "2026-11-15T18:20:00Z"
+    },
+    {
+      "id": "intent-5",
+      "travelerId": "trav-3",
+      "destinationId": "dest-amalfi",
+      "startDate": "2027-06-04",
+      "endDate": "2027-06-09",
+      "budgetTier": "Comfort",
+      "maxGroupSize": 4,
+      "currentGroupSize": 2,
+      "note": "Planning Positano ferries, Villa Cimbrone gardens in Ravello, and the Path of the Gods hike.",
+      "createdAt": "2026-11-13T12:45:00Z"
+    },
+    {
+      "id": "intent-6",
+      "travelerId": "trav-4",
+      "destinationId": "dest-banff",
+      "startDate": "2027-07-08",
+      "endDate": "2027-07-13",
+      "budgetTier": "Mid-Range",
+      "maxGroupSize": 4,
+      "currentGroupSize": 1,
+      "note": "Already reserved shuttle slots for Moraine Lake sunrise and looking to share an SUV and Canmore cabin.",
+      "createdAt": "2026-11-16T08:15:00Z"
+    }
+  ],
+  "conversations": [
+    {
+      "id": "conv-1",
+      "participantIds": [
+        "user-me",
+        "trav-1"
+      ],
+      "destinationId": "dest-santorini",
+      "tripIntentId": "intent-1",
+      "status": "accepted",
+      "unreadCount": 1,
+      "messages": [
+        {
+          "id": "msg-1",
+          "conversationId": "conv-1",
+          "senderId": "trav-1",
+          "body": "Hey Elena! Saw you are eyeing Santorini in mid-May. Another traveler and I are looking at a 4-person villa in Imerovigli to bring lodging down around $60/night each.",
+          "createdAt": "2026-11-17T14:20:00Z"
+        },
+        {
+          "id": "msg-2",
+          "conversationId": "conv-1",
+          "senderId": "user-me",
+          "body": "That sounds ideal—I would love to join for the sunrise Oia walk and split a rental car for Red Beach.",
+          "createdAt": "2026-11-17T15:05:00Z"
+        },
+        {
+          "id": "msg-3",
+          "conversationId": "conv-1",
+          "senderId": "trav-1",
+          "body": "Awesome! Let me know your arrival flight times whenever you narrow them down.",
+          "createdAt": "2026-11-17T15:18:00Z"
+        }
+      ]
+    }
+  ],
+  "blockedTravelerIds": []
+}

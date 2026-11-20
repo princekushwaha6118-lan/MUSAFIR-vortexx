@@ -1,0 +1,6 @@
+{
+  "name": "Wayfarer",
+  "description": "Find compatible solo travel companions, explore famous destination landmarks, calculate shared group budgets, and coordinate trips together.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
