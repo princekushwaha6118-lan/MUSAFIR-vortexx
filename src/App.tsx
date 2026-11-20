@@ -17,6 +17,7 @@ import {
   DESTINATIONS,
   FEATURED_PACKAGES,
   TESTIMONIALS,
+  formatINR,
 } from './data/travelData.ts';
 import type {
   BookingRecord,
@@ -34,6 +35,7 @@ export default function App() {
   const [checkIn, setCheckIn] = useState('2027-06-12');
   const [checkOut, setCheckOut] = useState('2027-06-19');
   const [travelers, setTravelers] = useState(2);
+  const [maxBudgetInr, setMaxBudgetInr] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
 
   // Interactive modals & user session
@@ -74,19 +76,28 @@ export default function App() {
     setActiveRegion('All');
     window.setTimeout(() => {
       setSearching(false);
-      scrollToSection('destinations');
+      scrollToSection(maxBudgetInr !== null && destinationQuery === 'all' ? 'explore-india' : 'destinations');
       const selected = DESTINATIONS.find((d) => d.id === destinationQuery);
+      const budgetNote =
+        maxBudgetInr !== null ? ` under ${formatINR(maxBudgetInr)}` : '';
       showToast(
         selected
-          ? `Showing curated escapes for ${selected.name} (${travelers} ${
+          ? `Showing curated escapes for ${selected.name}${budgetNote} (${travelers} ${
               travelers === 1 ? 'traveler' : 'travelers'
             }).`
-          : `Showing all ${DESTINATIONS.length} destinations for ${travelers} ${
+          : `Showing trips${budgetNote} for ${travelers} ${
               travelers === 1 ? 'traveler' : 'travelers'
             }.`
       );
     }, 360);
   };
+
+  const matchingDestinationsCount = DESTINATIONS.filter(
+    (d) => maxBudgetInr === null || d.startingPriceInr <= maxBudgetInr
+  ).length;
+  const matchingPackagesCount = FEATURED_PACKAGES.filter(
+    (p) => maxBudgetInr === null || p.pricePerGuestInr <= maxBudgetInr
+  ).length;
 
   const handleOpenBookingForDest = (dest: MusafirDestination) => {
     setExploredDestination(null);
@@ -146,11 +157,13 @@ export default function App() {
           checkIn={checkIn}
           checkOut={checkOut}
           travelers={travelers}
+          maxBudgetInr={maxBudgetInr}
           searching={searching}
           onDestinationQueryChange={setDestinationQuery}
           onCheckInChange={setCheckIn}
           onCheckOutChange={setCheckOut}
           onTravelersChange={setTravelers}
+          onMaxBudgetChange={setMaxBudgetInr}
           onSearchTrips={handleSearchTrips}
         />
 
@@ -158,18 +171,26 @@ export default function App() {
           destinations={DESTINATIONS}
           activeRegion={activeRegion}
           selectedSearchDest={destinationQuery}
+          maxBudgetInr={maxBudgetInr}
           onRegionChange={setActiveRegion}
           onClearSearchFilter={() => setDestinationQuery('all')}
+          onResetBudget={() => setMaxBudgetInr(null)}
           onExploreDestination={(dest) => setExploredDestination(dest)}
         />
 
         <ExploreIndiaSection
+          maxBudgetInr={maxBudgetInr}
+          onBudgetChange={setMaxBudgetInr}
+          matchingDestinationsCount={matchingDestinationsCount}
+          matchingPackagesCount={matchingPackagesCount}
           onOpenPlace={(place) => setSelectedIndiaPlace(place)}
         />
 
         <PackagesSection
           packages={FEATURED_PACKAGES}
           selectedSearchDest={destinationQuery}
+          maxBudgetInr={maxBudgetInr}
+          onResetBudget={() => setMaxBudgetInr(null)}
           onBookPackage={handleOpenBookingForPkg}
         />
 

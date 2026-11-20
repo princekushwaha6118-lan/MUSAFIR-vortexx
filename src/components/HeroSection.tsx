@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Loader2, MapPin, Search, Users } from 'lucide-react';
+import { Calendar, IndianRupee, Loader2, MapPin, Search, Users } from 'lucide-react';
 import { HERO_MOUNTAIN_IMAGE } from '../data/travelData.ts';
 import type { MusafirDestination } from '../types.ts';
 
@@ -9,11 +9,13 @@ interface HeroSectionProps {
   checkIn: string;
   checkOut: string;
   travelers: number;
+  maxBudgetInr: number | null;
   searching: boolean;
   onDestinationQueryChange: (val: string) => void;
   onCheckInChange: (val: string) => void;
   onCheckOutChange: (val: string) => void;
   onTravelersChange: (val: number) => void;
+  onMaxBudgetChange: (val: number | null) => void;
   onSearchTrips: (e: React.FormEvent) => void;
 }
 
@@ -23,11 +25,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   checkIn,
   checkOut,
   travelers,
+  maxBudgetInr,
   searching,
   onDestinationQueryChange,
   onCheckInChange,
   onCheckOutChange,
   onTravelersChange,
+  onMaxBudgetChange,
   onSearchTrips,
 }) => {
   return (
@@ -76,11 +80,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           {/* White Rounded Search & Booking Widget */}
           <form
             onSubmit={onSearchTrips}
-            className="bg-white rounded-[24px] p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.2)] max-w-5xl w-full mx-auto animate-fade-up"
+            className="bg-white rounded-[24px] p-4 sm:p-5 shadow-[0_20px_50px_rgba(0,0,0,0.2)] max-w-6xl w-full mx-auto animate-fade-up"
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
               {/* Destination */}
-              <div className="lg:col-span-3 px-2 sm:border-r border-black/10">
+              <div className="lg:col-span-2 px-2 sm:border-r border-black/10">
                 <label
                   htmlFor="hero-destination"
                   className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5a6159] mb-1"
@@ -94,23 +98,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   onChange={(e) => onDestinationQueryChange(e.target.value)}
                   className="w-full bg-transparent text-sm font-semibold text-[#141714] focus:outline-none cursor-pointer py-1"
                 >
-                  <option value="all">All Destinations</option>
+                  <option value="all">All Places</option>
                   {destinations.map((dest) => (
                     <option key={dest.id} value={dest.id}>
-                      {dest.name}, {dest.country}
+                      {dest.name}
                     </option>
                   ))}
                 </select>
               </div>
 
               {/* Check-in Date */}
-              <div className="lg:col-span-3 px-2 lg:border-r border-black/10">
+              <div className="lg:col-span-2 px-2 lg:border-r border-black/10">
                 <label
                   htmlFor="hero-checkin"
                   className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5a6159] mb-1"
                 >
                   <Calendar className="w-3.5 h-3.5 text-[#1d4738]" />
-                  <span>Check-in Date</span>
+                  <span>Check-in</span>
                 </label>
                 <input
                   id="hero-checkin"
@@ -128,7 +132,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5a6159] mb-1"
                 >
                   <Calendar className="w-3.5 h-3.5 text-[#1d4738]" />
-                  <span>Check-out Date</span>
+                  <span>Check-out</span>
                 </label>
                 <input
                   id="hero-checkout"
@@ -137,6 +141,35 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   onChange={(e) => onCheckOutChange(e.target.value)}
                   className="w-full bg-transparent text-sm font-mono tabular-nums font-medium text-[#141714] focus:outline-none py-1"
                 />
+              </div>
+
+              {/* Max Budget */}
+              <div className="lg:col-span-2 px-2 lg:border-r border-black/10">
+                <label
+                  htmlFor="hero-budget"
+                  className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#5a6159] mb-1"
+                >
+                  <IndianRupee className="w-3.5 h-3.5 text-[#1d4738]" />
+                  <span>Your Budget</span>
+                </label>
+                <select
+                  id="hero-budget"
+                  value={maxBudgetInr === null ? 'any' : String(maxBudgetInr)}
+                  onChange={(e) =>
+                    onMaxBudgetChange(
+                      e.target.value === 'any' ? null : Number(e.target.value)
+                    )
+                  }
+                  className="w-full bg-transparent text-sm font-mono tabular-nums font-semibold text-[#141714] focus:outline-none cursor-pointer py-1"
+                >
+                  <option value="any">Any Budget</option>
+                  <option value="3500">Under ₹3,500</option>
+                  <option value="4500">Under ₹4,500</option>
+                  <option value="5500">Under ₹5,500</option>
+                  <option value="7500">Under ₹7,500</option>
+                  <option value="10000">Under ₹10,000</option>
+                  <option value="35000">Under ₹35,000</option>
+                </select>
               </div>
 
               {/* Number of Travelers */}

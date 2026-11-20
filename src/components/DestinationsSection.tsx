@@ -7,8 +7,10 @@ interface DestinationsSectionProps {
   destinations: MusafirDestination[];
   activeRegion: DestinationRegion;
   selectedSearchDest: string;
+  maxBudgetInr: number | null;
   onRegionChange: (region: DestinationRegion) => void;
   onClearSearchFilter: () => void;
+  onResetBudget: () => void;
   onExploreDestination: (dest: MusafirDestination) => void;
 }
 
@@ -24,8 +26,10 @@ export const DestinationsSection: React.FC<DestinationsSectionProps> = ({
   destinations,
   activeRegion,
   selectedSearchDest,
+  maxBudgetInr,
   onRegionChange,
   onClearSearchFilter,
+  onResetBudget,
   onExploreDestination,
 }) => {
   const [activePhotoByDest, setActivePhotoByDest] = useState<Record<string, number>>({});
@@ -34,7 +38,9 @@ export const DestinationsSection: React.FC<DestinationsSectionProps> = ({
     const regionOk = activeRegion === 'All' || dest.regionCategory === activeRegion;
     const searchOk =
       selectedSearchDest === 'all' || dest.id === selectedSearchDest;
-    return regionOk && searchOk;
+    const budgetOk =
+      maxBudgetInr === null || dest.startingPriceInr <= maxBudgetInr;
+    return regionOk && searchOk && budgetOk;
   });
 
   return (
@@ -55,11 +61,26 @@ export const DestinationsSection: React.FC<DestinationsSectionProps> = ({
           <p className="text-sm sm:text-base text-[#5a6159] mt-2 max-w-2xl">
             Click any thumbnail on a card to preview 4–5 iconic spots for that place,
             or select Explore for an easy day-by-day overview and full photo gallery.
+            {maxBudgetInr !== null && (
+              <span className="font-medium text-[#1d4738]">
+                {' '}
+                · Filtered under {formatINR(maxBudgetInr)}
+              </span>
+            )}
           </p>
         </div>
 
         {/* Interactive Filter Tabs */}
         <div className="flex flex-wrap items-center gap-2">
+          {maxBudgetInr !== null && (
+            <button
+              type="button"
+              onClick={onResetBudget}
+              className="text-xs font-semibold text-[#1d4738] underline underline-offset-4 mr-2 cursor-pointer whitespace-nowrap"
+            >
+              Clear budget ({formatINR(maxBudgetInr)})
+            </button>
+          )}
           {selectedSearchDest !== 'all' && (
             <button
               type="button"
@@ -100,16 +121,17 @@ export const DestinationsSection: React.FC<DestinationsSectionProps> = ({
       {visibleDestinations.length === 0 ? (
         <div className="bg-white rounded-3xl border border-black/8 p-12 text-center">
           <p className="font-editorial text-2xl font-medium text-[#141714] mb-2">
-            No destinations match both filters
+            No destinations match your current filters
           </p>
           <p className="text-sm text-[#5a6159] mb-5">
-            Reset the category or search selection to browse all places.
+            Reset the budget, category, or search selection to browse all places.
           </p>
           <button
             type="button"
             onClick={() => {
               onRegionChange('All');
               onClearSearchFilter();
+              onResetBudget();
             }}
             className="bg-[#1d4738] text-white text-sm font-semibold px-5 py-2.5 rounded-full cursor-pointer"
           >

@@ -156,7 +156,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 80.52,
     bestSeason: 'October – March',
     languages: 'Telugu',
-    startingBudgetInr: 13500,
+    startingBudgetInr: 4800,
     imageUrl: IMG.konark,
     imageTitle: 'Ancient Dravidian & Coastal Temple Heritage',
     imageCaption:
@@ -231,7 +231,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 93.62,
     bestSeason: 'October – April',
     languages: 'English, Nyishi, Hindi',
-    startingBudgetInr: 23500,
+    startingBudgetInr: 7800,
     imageUrl: IMG.ladakh,
     imageTitle: 'High-Altitude Himalayan Passes & Monasteries',
     imageCaption:
@@ -306,7 +306,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 91.79,
     bestSeason: 'November – April',
     languages: 'Assamese, Bodo',
-    startingBudgetInr: 17200,
+    startingBudgetInr: 5800,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Mighty Brahmaputra & Tea Garden Hills',
     imageCaption:
@@ -381,7 +381,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 85.14,
     bestSeason: 'October – March',
     languages: 'Hindi, Bhojpuri, Maithili',
-    startingBudgetInr: 11800,
+    startingBudgetInr: 3400,
     imageUrl: IMG.kashiGhats,
     imageTitle: 'Ancient Ganga Riverfronts & Bodh Gaya Heritage',
     imageCaption:
@@ -456,7 +456,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 81.63,
     bestSeason: 'October – March',
     languages: 'Hindi, Chhattisgarhi',
-    startingBudgetInr: 12500,
+    startingBudgetInr: 4200,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Chitrakote Waterfalls & Bastar Forest Valleys',
     imageCaption:
@@ -531,7 +531,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 73.83,
     bestSeason: 'November – February',
     languages: 'Konkani, English, Marathi',
-    startingBudgetInr: 15900,
+    startingBudgetInr: 5900,
     imageUrl: IMG.goa,
     imageTitle: 'Palm-Lined Golden Beaches & Laterite Forts',
     imageCaption:
@@ -606,7 +606,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 72.64,
     bestSeason: 'November – February',
     languages: 'Gujarati, Hindi',
-    startingBudgetInr: 14200,
+    startingBudgetInr: 4900,
     imageUrl: IMG.jaipur,
     imageTitle: 'Intricate Stepwells, White Rann & Royal Palaces',
     imageCaption:
@@ -681,7 +681,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 76.09,
     bestSeason: 'October – March',
     languages: 'Hindi, Haryanvi',
-    startingBudgetInr: 9800,
+    startingBudgetInr: 2999,
     imageUrl: IMG.agraFort,
     imageTitle: 'Kurukshetra Heritage & Aravalli Eco-Retreats',
     imageCaption:
@@ -756,7 +756,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 77.17,
     bestSeason: 'March – June, Oct – Dec',
     languages: 'Hindi, Pahari',
-    startingBudgetInr: 14900,
+    startingBudgetInr: 4900,
     imageUrl: IMG.manali,
     imageTitle: 'Deodar Cedar Forests & Beas Mountain Streams',
     imageCaption:
@@ -831,7 +831,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 85.31,
     bestSeason: 'October – March',
     languages: 'Hindi, Santali, Nagpuri',
-    startingBudgetInr: 11500,
+    startingBudgetInr: 3499,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Hundru Falls & Chota Nagpur Forest Plateaus',
     imageCaption:
@@ -906,7 +906,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 77.59,
     bestSeason: 'October – March',
     languages: 'Kannada',
-    startingBudgetInr: 15500,
+    startingBudgetInr: 5400,
     imageUrl: IMG.hampi,
     imageTitle: 'Hampi Stone Chariot & Royal Heritage Trails',
     imageCaption:
@@ -981,7 +981,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 76.94,
     bestSeason: 'September – March',
     languages: 'Malayalam',
-    startingBudgetInr: 17500,
+    startingBudgetInr: 6500,
     imageUrl: IMG.kerala,
     imageTitle: 'Alleppey Backwaters & Coconut-Lined Canals',
     imageCaption:
@@ -1056,7 +1056,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 77.41,
     bestSeason: 'October – March',
     languages: 'Hindi',
-    startingBudgetInr: 13800,
+    startingBudgetInr: 4600,
     imageUrl: IMG.konark,
     imageTitle: 'Khajuraho Temples, Sanchi Stupa & Tiger Reserves',
     imageCaption:
@@ -1131,7 +1131,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 72.88,
     bestSeason: 'October – March',
     languages: 'Marathi, Hindi',
-    startingBudgetInr: 14800,
+    startingBudgetInr: 5200,
     imageUrl: IMG.mumbai,
     imageTitle: 'Gateway of India & Sahyadri Monsoon Forts',
     imageCaption:
@@ -1206,7 +1206,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 93.94,
     bestSeason: 'October – March',
     languages: 'Meiteilon (Manipuri)',
-    startingBudgetInr: 18200,
+    startingBudgetInr: 6400,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Loktak Floating Lake & Emerald Hills',
     imageCaption:
@@ -1281,7 +1281,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 91.89,
     bestSeason: 'October – May',
     languages: 'Khasi, Garo, English',
-    startingBudgetInr: 18500,
+    startingBudgetInr: 6800,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Nohkalikai Falls & Cloud-Wrapped Khasi Hills',
     imageCaption:
@@ -1356,7 +1356,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 92.72,
     bestSeason: 'November – March',
     languages: 'Mizo, English',
-    startingBudgetInr: 18900,
+    startingBudgetInr: 6900,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Vantawng Falls & Aizawl Ridges',
     imageCaption:
@@ -1431,7 +1431,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 94.11,
     bestSeason: 'November – April',
     languages: 'English, Nagamese',
-    startingBudgetInr: 19200,
+    startingBudgetInr: 6900,
     imageUrl: IMG.meghalaya,
     imageTitle: 'Dzukou Valley & Kohima Hilltop Heritage',
     imageCaption:
@@ -1506,7 +1506,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 85.82,
     bestSeason: 'October – March',
     languages: 'Odia',
-    startingBudgetInr: 13200,
+    startingBudgetInr: 4500,
     imageUrl: IMG.konark,
     imageTitle: 'Konark Sun Temple Chariot Wheel',
     imageCaption:
@@ -1581,7 +1581,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 74.87,
     bestSeason: 'October – March',
     languages: 'Punjabi, Hindi',
-    startingBudgetInr: 12400,
+    startingBudgetInr: 4400,
     imageUrl: IMG.goldenTemple,
     imageTitle: 'Sri Harmandir Sahib (Golden Temple), Amritsar',
     imageCaption:
@@ -1656,7 +1656,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 75.79,
     bestSeason: 'October – March',
     languages: 'Hindi, Rajasthani',
-    startingBudgetInr: 14500,
+    startingBudgetInr: 4400,
     imageUrl: IMG.jaipur,
     imageTitle: 'Hawa Mahal & Pink City Sandstone Facades',
     imageCaption:
@@ -1731,7 +1731,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 88.61,
     bestSeason: 'March – June, Oct – Dec',
     languages: 'Nepali, Sikkimese, Lepcha',
-    startingBudgetInr: 17900,
+    startingBudgetInr: 6900,
     imageUrl: IMG.ladakh,
     imageTitle: 'Tsomgo Glacial Lake & Kanchenjunga Peaks',
     imageCaption:
@@ -1806,7 +1806,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 80.27,
     bestSeason: 'November – March',
     languages: 'Tamil',
-    startingBudgetInr: 14900,
+    startingBudgetInr: 5400,
     imageUrl: IMG.meenakshi,
     imageTitle: 'Meenakshi Amman Temple Gopuram, Madurai',
     imageCaption:
@@ -1881,7 +1881,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 78.49,
     bestSeason: 'October – March',
     languages: 'Telugu, Urdu',
-    startingBudgetInr: 13900,
+    startingBudgetInr: 4800,
     imageUrl: IMG.agraFort,
     imageTitle: 'Golconda Fort, Charminar & Ramappa Temple',
     imageCaption:
@@ -1956,7 +1956,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 91.29,
     bestSeason: 'October – March',
     languages: 'Bengali, Kokborok',
-    startingBudgetInr: 15800,
+    startingBudgetInr: 5500,
     imageUrl: IMG.kerala,
     imageTitle: 'Neermahal Water Palace & Unakoti Rock Carvings',
     imageCaption:
@@ -2031,7 +2031,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 80.95,
     bestSeason: 'October – March',
     languages: 'Hindi, Urdu, Awadhi',
-    startingBudgetInr: 12900,
+    startingBudgetInr: 3800,
     imageUrl: IMG.taj,
     imageTitle: 'Taj Mahal at Sunrise, Agra',
     imageCaption:
@@ -2106,7 +2106,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 78.03,
     bestSeason: 'March – June, Sep – Nov',
     languages: 'Hindi, Garhwali, Kumaoni',
-    startingBudgetInr: 16500,
+    startingBudgetInr: 4700,
     imageUrl: IMG.kedarnath,
     imageTitle: 'Kedarnath Temple & Garhwal Snow Peaks',
     imageCaption:
@@ -2181,7 +2181,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 88.36,
     bestSeason: 'October – March',
     languages: 'Bengali',
-    startingBudgetInr: 13900,
+    startingBudgetInr: 4900,
     imageUrl: IMG.manali,
     imageTitle: 'Darjeeling Tea Hills, Kolkata Heritage & Sundarbans',
     imageCaption:
@@ -2258,7 +2258,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 92.73,
     bestSeason: 'November – May',
     languages: 'Hindi, English, Bengali, Tamil',
-    startingBudgetInr: 26500,
+    startingBudgetInr: 9500,
     imageUrl: IMG.andaman,
     imageTitle: 'Radhanagar Beach, Swaraj Dweep (Havelock)',
     imageCaption:
@@ -2333,7 +2333,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 76.78,
     bestSeason: 'October – March',
     languages: 'English, Hindi, Punjabi',
-    startingBudgetInr: 10900,
+    startingBudgetInr: 3300,
     imageUrl: IMG.goldenTemple,
     imageTitle: 'Rock Garden, Sukhna Lake & Capitol Complex',
     imageCaption:
@@ -2408,7 +2408,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 72.83,
     bestSeason: 'October – March',
     languages: 'Gujarati, Hindi, Marathi',
-    startingBudgetInr: 12800,
+    startingBudgetInr: 4400,
     imageUrl: IMG.goa,
     imageTitle: 'Diu Fort, Nagoa Beach & Silvassa Green Groves',
     imageCaption:
@@ -2483,7 +2483,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 77.21,
     bestSeason: 'October – March',
     languages: 'Hindi, English, Punjabi, Urdu',
-    startingBudgetInr: 11900,
+    startingBudgetInr: 3200,
     imageUrl: IMG.agraFort,
     imageTitle: 'Red Fort, Humayun’s Tomb & India Gate',
     imageCaption:
@@ -2558,7 +2558,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 74.8,
     bestSeason: 'April – October',
     languages: 'Kashmiri, Dogri, Urdu, Hindi',
-    startingBudgetInr: 19500,
+    startingBudgetInr: 7400,
     imageUrl: IMG.kashmirDal,
     imageTitle: 'Dal Lake Dawn Shikara Ride, Srinagar',
     imageCaption:
@@ -2633,7 +2633,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 77.58,
     bestSeason: 'May – September',
     languages: 'Ladakhi, Tibetan, Hindi',
-    startingBudgetInr: 24900,
+    startingBudgetInr: 8900,
     imageUrl: IMG.ladakh,
     imageTitle: 'Pangong Tso Lake, Ladakh',
     imageCaption:
@@ -2708,7 +2708,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 72.64,
     bestSeason: 'October – May',
     languages: 'Malayalam, Mahl',
-    startingBudgetInr: 28900,
+    startingBudgetInr: 9900,
     imageUrl: IMG.andaman,
     imageTitle: 'Agatti & Bangaram Coral Atoll Lagoons',
     imageCaption:
@@ -2783,7 +2783,7 @@ export const INDIA_STATES_AND_UTS: IndiaStateUT[] = [
     lon: 79.81,
     bestSeason: 'October – March',
     languages: 'Tamil, French, English',
-    startingBudgetInr: 13200,
+    startingBudgetInr: 4600,
     imageUrl: IMG.goa,
     imageTitle: 'Promenade Beach & White Town Boulevards',
     imageCaption:

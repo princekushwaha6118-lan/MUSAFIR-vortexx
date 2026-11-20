@@ -21,9 +21,14 @@ import {
 } from '../data/indiaStatesData.ts';
 import { formatINR } from '../data/travelData.ts';
 import type { IndiaRegion, IndiaStateUT } from '../types.ts';
+import { BudgetPicker } from './BudgetPicker.tsx';
 import { GuideAIPanel } from './GuideAIPanel.tsx';
 
 interface ExploreIndiaSectionProps {
+  maxBudgetInr: number | null;
+  onBudgetChange: (budget: number | null) => void;
+  matchingDestinationsCount: number;
+  matchingPackagesCount: number;
   onOpenPlace: (place: IndiaStateUT) => void;
 }
 
@@ -39,6 +44,10 @@ const INDIA_REGIONS: IndiaRegion[] = [
 ];
 
 export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
+  maxBudgetInr,
+  onBudgetChange,
+  matchingDestinationsCount,
+  matchingPackagesCount,
   onOpenPlace,
 }) => {
   const [regionFilter, setRegionFilter] = useState<IndiaRegion>('All');
@@ -55,12 +64,22 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
   const [focusedPlace, setFocusedPlace] = useState<IndiaStateUT>(defaultFocused);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
+  const budgetMatchingStatesCount = useMemo(
+    () =>
+      INDIA_STATES_AND_UTS.filter(
+        (p) => maxBudgetInr === null || p.startingBudgetInr <= maxBudgetInr
+      ).length,
+    [maxBudgetInr]
+  );
+
   const filteredPlaces = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return INDIA_STATES_AND_UTS.filter((place) => {
       const regionMatch = regionFilter === 'All' || place.region === regionFilter;
       const kindMatch = kindFilter === 'All' || place.kind === kindFilter;
-      if (!regionMatch || !kindMatch) return false;
+      const budgetMatch =
+        maxBudgetInr === null || place.startingBudgetInr <= maxBudgetInr;
+      if (!regionMatch || !kindMatch || !budgetMatch) return false;
       if (!q) return true;
       const inName = place.name.toLowerCase().includes(q);
       const inCapital = place.capital.toLowerCase().includes(q);
@@ -73,7 +92,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
       );
       return inName || inCapital || inPlaces || inFoods;
     });
-  }, [regionFilter, kindFilter, searchQuery]);
+  }, [regionFilter, kindFilter, maxBudgetInr, searchQuery]);
 
   const filteredIds = useMemo(
     () => new Set(filteredPlaces.map((p) => p.id)),
@@ -81,7 +100,10 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
   );
 
   const isFiltered =
-    regionFilter !== 'All' || kindFilter !== 'All' || searchQuery.trim().length > 0;
+    regionFilter !== 'All' ||
+    kindFilter !== 'All' ||
+    maxBudgetInr !== null ||
+    searchQuery.trim().length > 0;
   const visibleGridPlaces =
     isFiltered || showAllCards ? filteredPlaces : filteredPlaces.slice(0, 9);
 
@@ -108,9 +130,9 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
             <em className="font-editorial italic font-medium">Incredible India</em>
           </h2>
           <p className="text-sm sm:text-base text-[#5a6159] mt-2 max-w-2xl leading-relaxed">
-            Click any dot on the India map to open that state or union territory’s
-            real photo details, verified famous places, favorite local foods, and
-            live MUSAFIR Guide AI.
+            Click any dot on the India map—or select any of the 28 states and 8
+            union territories below—to explore real photos, famous landmarks,
+            favorite regional food, and live MUSAFIR Guide AI.
           </p>
         </div>
 
@@ -142,6 +164,19 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
         </div>
       </div>
 
+      {/* Interactive Price / Budget Selector */}
+      <BudgetPicker
+        maxBudgetInr={maxBudgetInr}
+        onBudgetChange={onBudgetChange}
+        matchingStatesCount={budgetMatchingStatesCount}
+        matchingDestinationsCount={matchingDestinationsCount}
+        matchingPackagesCount={matchingPackagesCount}
+        onOpenIndiaPlace={(place) => {
+          setFocusedPlace(place);
+          onOpenPlace(place);
+        }}
+      />
+
       {/* 2-Column Split: Interactive India Map (Left) + Live Preview & Guide AI (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 items-stretch mb-14">
         {/* Interactive India Map Card */}
@@ -152,7 +187,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                 Interactive Map of India
               </h3>
               <p className="text-xs text-[#5a6159] mt-0.5">
-                Hover a dot to preview · Click any dot to open places &amp; favorite food
+                Hover any dot to preview · Click to explore famous places &amp; local food
               </p>
             </div>
 
@@ -358,42 +393,104 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
             </svg>
           </div>
 
-          {/* Quick Jump Buttons for Union Territories & Popular Hubs */}
-          <div className="mt-4 flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-[#5a6159] mr-1">
-              Quick Dots:
-            </span>
-            {[
-              'delhi',
-              'uttar-pradesh',
-              'rajasthan',
-              'kerala',
-              'goa',
-              'ladakh',
-              'meghalaya',
-              'andaman-nicobar',
-            ].map((id) => {
-              const p = INDIA_STATES_AND_UTS.find((item) => item.id === id);
-              if (!p) return null;
-              return (
-                <button
-                  key={p.id}
-                  type="button"
-                  onMouseEnter={() => setFocusedPlace(p)}
-                  onClick={() => {
-                    setFocusedPlace(p);
-                    onOpenPlace(p);
-                  }}
-                  className={`text-xs font-medium px-2.5 py-1 rounded-lg border transition-colors cursor-pointer whitespace-nowrap ${
-                    previewPlace.id === p.id
-                      ? 'bg-[#141714] text-white border-[#141714]'
-                      : 'bg-[#f7f5f0] text-[#141714] border-black/10 hover:bg-[#ebe5da]'
-                  }`}
-                >
-                  {p.name.replace(' & ', ' / ').replace(' (NCT)', '')}
-                </button>
-              );
-            })}
+          {/* All 28 States & 8 Union Territories Quick Dots */}
+          <div className="mt-5 pt-4 border-t border-black/8 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-medium text-[#4a5149]">
+                <strong className="font-semibold text-[#141714]">
+                  All Quick Dots ({TOTAL_STATES_COUNT} States &amp; {TOTAL_UTS_COUNT} Union Territories):
+                </strong>{' '}
+                Hover to spotlight on the map, or click any place to view photos, landmarks &amp; food.
+              </p>
+            </div>
+
+            {/* 28 States */}
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#1d4738]">
+                {TOTAL_STATES_COUNT} States
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {INDIA_STATES_AND_UTS.filter((item) => item.kind === 'State')
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((p) => {
+                    const isSelected = previewPlace.id === p.id;
+                    const matchesFilter = filteredIds.has(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onMouseEnter={() => {
+                          setHoveredId(p.id);
+                          setFocusedPlace(p);
+                        }}
+                        onMouseLeave={() => setHoveredId(null)}
+                        onClick={() => {
+                          setFocusedPlace(p);
+                          onOpenPlace(p);
+                        }}
+                        className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-all cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-[#141714] text-white border-[#141714]'
+                            : 'bg-[#f7f5f0] text-[#141714] border-black/10 hover:bg-[#ebe5da]'
+                        } ${matchesFilter ? 'opacity-100' : 'opacity-45'}`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                            isSelected ? 'bg-white' : 'bg-[#1d4738]'
+                          }`}
+                        />
+                        <span>{p.name}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
+
+            {/* 8 Union Territories */}
+            <div className="space-y-1.5">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#b45309]">
+                {TOTAL_UTS_COUNT} Union Territories
+              </p>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {INDIA_STATES_AND_UTS.filter((item) => item.kind === 'Union Territory')
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((p) => {
+                    const isSelected = previewPlace.id === p.id;
+                    const matchesFilter = filteredIds.has(p.id);
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onMouseEnter={() => {
+                          setHoveredId(p.id);
+                          setFocusedPlace(p);
+                        }}
+                        onMouseLeave={() => setHoveredId(null)}
+                        onClick={() => {
+                          setFocusedPlace(p);
+                          onOpenPlace(p);
+                        }}
+                        className={`text-[11px] font-medium px-2.5 py-1 rounded-lg border transition-all cursor-pointer whitespace-nowrap inline-flex items-center gap-1.5 ${
+                          isSelected
+                            ? 'bg-[#141714] text-white border-[#141714]'
+                            : 'bg-[#f7f5f0] text-[#141714] border-black/10 hover:bg-[#ebe5da]'
+                        } ${matchesFilter ? 'opacity-100' : 'opacity-45'}`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                            isSelected ? 'bg-white' : 'bg-[#b45309]'
+                          }`}
+                        />
+                        <span>{p.name.replace(' (NCT)', '')}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -534,10 +631,10 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
         {visibleGridPlaces.length === 0 ? (
           <div className="bg-white rounded-3xl border border-black/8 p-12 text-center">
             <p className="font-editorial text-2xl font-medium text-[#141714] mb-2">
-              No Indian state or territory matched “{searchQuery}”
+              No Indian state or territory matched your current filters
             </p>
             <p className="text-sm text-[#5a6159] mb-5">
-              Try searching by state name, capital city, landmark, or favorite dish.
+              Raise your budget limit or reset filters to browse all 28 states &amp; 8 union territories.
             </p>
             <button
               type="button"
@@ -545,10 +642,11 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                 setRegionFilter('All');
                 setKindFilter('All');
                 setSearchQuery('');
+                onBudgetChange(null);
               }}
               className="bg-[#1d4738] text-white text-sm font-semibold px-5 py-2.5 rounded-full cursor-pointer"
             >
-              Reset India Filters
+              Reset India &amp; Budget Filters
             </button>
           </div>
         ) : (

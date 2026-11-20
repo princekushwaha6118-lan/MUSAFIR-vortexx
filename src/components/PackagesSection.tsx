@@ -6,18 +6,26 @@ import type { TravelPackage } from '../types.ts';
 interface PackagesSectionProps {
   packages: TravelPackage[];
   selectedSearchDest: string;
+  maxBudgetInr: number | null;
+  onResetBudget: () => void;
   onBookPackage: (pkg: TravelPackage) => void;
 }
 
 export const PackagesSection: React.FC<PackagesSectionProps> = ({
   packages,
   selectedSearchDest,
+  maxBudgetInr,
+  onResetBudget,
   onBookPackage,
 }) => {
+  const budgetFiltered = packages.filter(
+    (pkg) => maxBudgetInr === null || pkg.pricePerGuestInr <= maxBudgetInr
+  );
+
   const orderedPackages =
     selectedSearchDest === 'all'
-      ? packages
-      : [...packages].sort((a, b) =>
+      ? budgetFiltered
+      : [...budgetFiltered].sort((a, b) =>
           a.destinationId === selectedSearchDest
             ? -1
             : b.destinationId === selectedSearchDest
@@ -40,13 +48,46 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
             <em className="font-editorial italic font-medium">Best Experiences</em>
           </h2>
         </div>
-        <p className="text-sm sm:text-base text-[#5a6159] max-w-md">
-          Simple, transparent all-inclusive journeys in Indian Rupees with
-          comfortable stays, guided temple &amp; wonder visits, and private transfers.
-        </p>
+        <div className="space-y-2 max-w-md">
+          <p className="text-sm sm:text-base text-[#5a6159]">
+            Simple, transparent all-inclusive journeys in Indian Rupees with
+            comfortable stays, guided temple &amp; wonder visits, and private transfers.
+          </p>
+          {maxBudgetInr !== null && (
+            <div className="flex items-center gap-3 text-xs font-medium">
+              <span className="text-[#1d4738]">
+                Showing packages under {formatINR(maxBudgetInr)}
+              </span>
+              <button
+                type="button"
+                onClick={onResetBudget}
+                className="underline underline-offset-4 text-[#141714] cursor-pointer"
+              >
+                Show all packages
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {orderedPackages.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-black/8 p-12 text-center">
+          <p className="font-editorial text-2xl font-medium text-[#141714] mb-2">
+            No multi-day packages under {formatINR(maxBudgetInr ?? 0)}
+          </p>
+          <p className="text-sm text-[#5a6159] mb-5">
+            Raise your budget slider or reset to view all signature journeys starting from ₹5,500.
+          </p>
+          <button
+            type="button"
+            onClick={onResetBudget}
+            className="bg-[#1d4738] text-white text-sm font-semibold px-5 py-2.5 rounded-full cursor-pointer"
+          >
+            Show All Packages
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {orderedPackages.map((pkg) => {
           const isHighlighted =
             selectedSearchDest !== 'all' &&
@@ -126,7 +167,8 @@ export const PackagesSection: React.FC<PackagesSectionProps> = ({
             </article>
           );
         })}
-      </div>
+        </div>
+      )}
     </section>
   );
 };

@@ -78,7 +78,7 @@ async function startServer() {
       checkIn,
       checkOut,
       travelers: Number(travelers) || 2,
-      totalPriceInr: Number(totalPriceInr) || 18500,
+      totalPriceInr: Number(totalPriceInr) || 5900,
       guestName: guestName.trim(),
       guestEmail: guestEmail.trim(),
       createdAt: new Date().toISOString(),

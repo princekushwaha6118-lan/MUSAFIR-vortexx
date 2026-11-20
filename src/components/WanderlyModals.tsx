@@ -244,8 +244,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     ? null
     : (destinations.find((d) => d.id === activePkg?.destinationId) ?? destinations[0]);
   const perGuestInr = isCustomSelected
-    ? (initialCustomPlace?.priceInr ?? 14500)
-    : (activePkg?.pricePerGuestInr ?? 18500);
+    ? (initialCustomPlace?.priceInr ?? 4900)
+    : (activePkg?.pricePerGuestInr ?? 5900);
   const totalEstimateInr = perGuestInr * travelers;
 
   const handleSubmit = async (e: React.FormEvent) => {
