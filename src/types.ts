@@ -12,12 +12,29 @@ export interface PlacePhoto {
   description: string;
 }
 
+export type ValuePriority = 'balanced' | 'budget-first' | 'rating-first';
+
+export interface ValueScoreBreakdown {
+  score: number;
+  priceScore: number;
+  popularityScore: number;
+  priceWeightPct: number;
+  ratingWeightPct: number;
+  tierLabel:
+    | 'Exceptional Value'
+    | 'Great Value'
+    | 'Good Value'
+    | 'Premium Experience';
+}
+
 export interface MusafirDestination {
   id: string;
   name: string;
   country: string;
   regionCategory: Exclude<DestinationRegion, 'All'>;
   startingPriceInr: number;
+  popularityRating: number;
+  reviewCount: number;
   bestSeason: string;
   idealDuration: string;
   imageUrl: string;
@@ -120,10 +137,52 @@ export interface IndiaStateUT {
   favoriteFoods: IndiaFavoriteFood[];
 }
 
+export interface GroundingPlaceSource {
+  title: string;
+  uri: string;
+  reviewSnippets?: string[];
+}
+
 export interface GuideMessage {
   id: string;
   role: 'user' | 'assistant';
   text: string;
   stateName?: string;
+  groundingPlaces?: GroundingPlaceSource[];
+}
+
+export interface SpotifyUser {
+  id: string;
+  displayName: string;
+  email?: string;
+  avatarUrl?: string;
+  product?: string;
+}
+
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: string;
+  album: string;
+  albumArt?: string;
+  previewUrl?: string | null;
+  externalUrl: string;
+  durationMs: number;
+}
+
+export interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  owner: string;
+  imageUrl?: string;
+  externalUrl: string;
+  tracksTotal: number;
+}
+
+export interface GeneratedMusicResult {
+  audioDataUrl: string;
+  lyrics: string;
+  model: 'lyria-3-clip-preview' | 'lyria-3-pro-preview';
+  durationLabel: string;
 }
 

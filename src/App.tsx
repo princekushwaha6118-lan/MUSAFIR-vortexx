@@ -7,6 +7,7 @@ import { IndiaPlaceModal } from './components/IndiaPlaceModal.tsx';
 import { Navbar } from './components/Navbar.tsx';
 import { PackagesSection } from './components/PackagesSection.tsx';
 import { TestimonialsSection } from './components/TestimonialsSection.tsx';
+import { TravelSoundtrackSection } from './components/TravelSoundtrackSection.tsx';
 import {
   AuthModal,
   BookingModal,
@@ -26,6 +27,7 @@ import type {
   MusafirDestination,
   TravelPackage,
   UserSession,
+  ValuePriority,
 } from './types.ts';
 
 export default function App() {
@@ -36,6 +38,7 @@ export default function App() {
   const [checkOut, setCheckOut] = useState('2027-06-19');
   const [travelers, setTravelers] = useState(2);
   const [maxBudgetInr, setMaxBudgetInr] = useState<number | null>(null);
+  const [valuePriority, setValuePriority] = useState<ValuePriority>('balanced');
   const [searching, setSearching] = useState(false);
 
   // Interactive modals & user session
@@ -54,6 +57,9 @@ export default function App() {
     priceInr: number;
   } | null>(null);
   const [bookingDestId, setBookingDestId] = useState('agra-taj');
+  const [lastVisitedPlaceName, setLastVisitedPlaceName] = useState<string | undefined>(
+    undefined
+  );
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = useCallback((message: string) => {
@@ -172,10 +178,15 @@ export default function App() {
           activeRegion={activeRegion}
           selectedSearchDest={destinationQuery}
           maxBudgetInr={maxBudgetInr}
+          valuePriority={valuePriority}
+          onValuePriorityChange={setValuePriority}
           onRegionChange={setActiveRegion}
           onClearSearchFilter={() => setDestinationQuery('all')}
           onResetBudget={() => setMaxBudgetInr(null)}
-          onExploreDestination={(dest) => setExploredDestination(dest)}
+          onExploreDestination={(dest) => {
+            setExploredDestination(dest);
+            setLastVisitedPlaceName(dest.name);
+          }}
         />
 
         <ExploreIndiaSection
@@ -183,7 +194,19 @@ export default function App() {
           onBudgetChange={setMaxBudgetInr}
           matchingDestinationsCount={matchingDestinationsCount}
           matchingPackagesCount={matchingPackagesCount}
-          onOpenPlace={(place) => setSelectedIndiaPlace(place)}
+          valuePriority={valuePriority}
+          onOpenPlace={(place) => {
+            setSelectedIndiaPlace(place);
+            setLastVisitedPlaceName(place.name);
+          }}
+        />
+
+        <TravelSoundtrackSection
+          activePlaceName={
+            selectedIndiaPlace?.name ??
+            exploredDestination?.name ??
+            lastVisitedPlaceName
+          }
         />
 
         <PackagesSection
@@ -209,6 +232,7 @@ export default function App() {
       <DestinationModal
         key={exploredDestination?.id ?? 'closed'}
         destination={exploredDestination}
+        valuePriority={valuePriority}
         onClose={() => setExploredDestination(null)}
         onBookDestination={handleOpenBookingForDest}
       />
@@ -216,6 +240,7 @@ export default function App() {
       <IndiaPlaceModal
         key={selectedIndiaPlace?.id ?? 'india-closed'}
         place={selectedIndiaPlace}
+        valuePriority={valuePriority}
         onClose={() => setSelectedIndiaPlace(null)}
         onPlanTrip={handleOpenBookingForIndiaPlace}
       />

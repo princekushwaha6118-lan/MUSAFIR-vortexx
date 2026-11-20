@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
-import { Compass, Loader2, Send, Sparkles } from 'lucide-react';
-import type { GuideMessage, IndiaStateUT } from '../types.ts';
+import {
+  Compass,
+  ExternalLink,
+  Loader2,
+  LocateFixed,
+  MapPin,
+  Send,
+  Sparkles,
+} from 'lucide-react';
+import type {
+  GroundingPlaceSource,
+  GuideMessage,
+  IndiaStateUT,
+} from '../types.ts';
 
 interface GuideAIPanelProps {
   selectedPlace: IndiaStateUT | null;
@@ -15,6 +27,11 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [useMapsGrounding, setUseMapsGrounding] = useState(true);
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
+  const [locating, setLocating] = useState(false);
 
   const suggestedPrompts = selectedPlace
     ? [
@@ -44,6 +61,36 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
     ].join('\n');
   };
 
+  const handleToggleNearMe = () => {
+    if (userCoords) {
+      setUserCoords(null);
+      return;
+    }
+    if (!navigator.geolocation) {
+      setErrorMsg('Browser geolocation is unavailable on this device.');
+      return;
+    }
+    setLocating(true);
+    setErrorMsg(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+        setUseMapsGrounding(true);
+        setLocating(false);
+      },
+      () => {
+        setErrorMsg(
+          'Location permission declined. Guide AI will use the selected state coordinates instead.'
+        );
+        setLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 6000 }
+    );
+  };
+
   const askGuide = async (questionText: string) => {
     const clean = questionText.trim();
     if (!clean || loading) return;
@@ -61,6 +108,9 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
     setInput('');
     setLoading(true);
 
+    const activeLat = userCoords?.lat ?? selectedPlace?.lat;
+    const activeLng = userCoords?.lng ?? selectedPlace?.lon;
+
     try {
       const res = await fetch('/api/guide-ai', {
         method: 'POST',
@@ -70,9 +120,17 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
           stateName: selectedPlace?.name,
           stateContext: buildContextString(selectedPlace),
           history: nextHistory.map((m) => ({ role: m.role, text: m.text })),
+          useMapsGrounding,
+          ...(typeof activeLat === 'number' && typeof activeLng === 'number'
+            ? { lat: activeLat, lng: activeLng }
+            : {}),
         }),
       });
-      const data = (await res.json()) as { answer?: string; error?: string };
+      const data = (await res.json()) as {
+        answer?: string;
+        groundingPlaces?: GroundingPlaceSource[];
+        error?: string;
+      };
       if (!res.ok || !data.answer) {
         setErrorMsg(data.error ?? 'Unable to get an answer from Guide AI right now.');
       } else {
@@ -83,6 +141,7 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
             role: 'assistant',
             text: data.answer!,
             stateName: selectedPlace?.name,
+            groundingPlaces: data.groundingPlaces,
           },
         ]);
       }
@@ -100,7 +159,7 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
 
   return (
     <div className="bg-white rounded-[24px] border border-black/8 p-5 flex flex-col gap-3.5">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1d4738] flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5" />
@@ -124,6 +183,44 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
         )}
       </div>
 
+      {/* Maps Grounding & Geolocation Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px]">
+        <button
+          type="button"
+          onClick={() => setUseMapsGrounding((prev) => !prev)}
+          aria-pressed={useMapsGrounding}
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold border cursor-pointer transition-colors ${
+            useMapsGrounding
+              ? 'bg-[#e7ede9] text-[#1d4738] border-[#1d4738]/25'
+              : 'bg-[#f7f5f0] text-[#5a6159] border-black/10'
+          }`}
+        >
+          <MapPin className="w-3 h-3" />
+          <span>Google Maps Data: {useMapsGrounding ? 'On' : 'Off'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleToggleNearMe}
+          disabled={locating}
+          aria-pressed={Boolean(userCoords)}
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-semibold border cursor-pointer transition-colors disabled:opacity-60 ${
+            userCoords
+              ? 'bg-[#141714] text-white border-[#141714]'
+              : 'bg-[#f7f5f0] text-[#4a5149] border-black/10 hover:text-[#141714]'
+          }`}
+        >
+          <LocateFixed className="w-3 h-3" />
+          <span>
+            {locating
+              ? 'Locating...'
+              : userCoords
+              ? 'Near Me Active'
+              : 'Use My Location'}
+          </span>
+        </button>
+      </div>
+
       {/* Quick Prompts */}
       <div className="flex flex-wrap gap-1.5">
         {suggestedPrompts.map((prompt) => (
@@ -142,7 +239,7 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
       {/* Conversation Feed */}
       <div
         className={`bg-[#f7f5f0] rounded-2xl p-3.5 overflow-y-auto space-y-3 ${
-          compact ? 'max-h-56 min-h-[150px]' : 'max-h-64 min-h-[160px]'
+          compact ? 'max-h-56 min-h-[150px]' : 'max-h-72 min-h-[160px]'
         }`}
       >
         {messages.length === 0 ? (
@@ -150,7 +247,7 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
             <Compass className="w-5 h-5 text-[#1d4738] shrink-0" />
             <p className="leading-relaxed">
               Ask about any verified state or union territory—famous temples, hidden waterfalls,
-              favorite local dishes, train routes, or Rupee trip budgets.
+              favorite local dishes, or Rupee trip budgets grounded with Google Maps data.
             </p>
           </div>
         ) : (
@@ -167,7 +264,42 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
                 {msg.role === 'user' ? 'You' : 'MUSAFIR Guide AI'}
                 {msg.stateName ? ` · ${msg.stateName}` : ''}
               </span>
-              {msg.text}
+              <p>{msg.text}</p>
+
+              {msg.role === 'assistant' &&
+                msg.groundingPlaces &&
+                msg.groundingPlaces.length > 0 && (
+                  <div className="mt-3 pt-2.5 border-t border-black/8 space-y-1.5">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-[#1d4738]">
+                      Verified Places on Google Maps
+                    </p>
+                    <div className="space-y-1.5">
+                      {msg.groundingPlaces.map((place) => (
+                        <div
+                          key={place.uri}
+                          className="bg-[#f7f5f0] rounded-lg px-2.5 py-2 text-xs space-y-1"
+                        >
+                          <a
+                            href={place.uri}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-semibold text-[#1d4738] hover:underline inline-flex items-center gap-1"
+                          >
+                            <MapPin className="w-3 h-3 shrink-0" />
+                            <span>{place.title}</span>
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                          </a>
+                          {place.reviewSnippets &&
+                            place.reviewSnippets.length > 0 && (
+                              <p className="text-[11px] text-[#5a6159] italic leading-snug">
+                                “{place.reviewSnippets[0]}”
+                              </p>
+                            )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
             </div>
           ))
         )}
@@ -175,7 +307,7 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
         {loading && (
           <div className="flex items-center gap-2 text-xs text-[#1d4738] font-medium px-1">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            <span>Preparing local travel tips...</span>
+            <span>Preparing Maps-grounded travel tips...</span>
           </div>
         )}
       </div>

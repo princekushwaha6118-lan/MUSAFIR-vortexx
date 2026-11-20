@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Loader2,
   MapPin,
+  Star,
   Users,
   X,
 } from 'lucide-react';
@@ -15,17 +16,22 @@ import type {
   MusafirDestination,
   TravelPackage,
   UserSession,
+  ValuePriority,
 } from '../types.ts';
+import { calculateValueForMoney } from '../utils/valueScore.ts';
+import { PlaceSpotifyPlayer } from './PlaceSpotifyPlayer.tsx';
 
 /* ---------------- Destination Detail & 4–5 Photo Gallery Modal ---------------- */
 interface DestinationModalProps {
   destination: MusafirDestination | null;
+  valuePriority?: ValuePriority;
   onClose: () => void;
   onBookDestination: (dest: MusafirDestination) => void;
 }
 
 export const DestinationModal: React.FC<DestinationModalProps> = ({
   destination,
+  valuePriority = 'balanced',
   onClose,
   onBookDestination,
 }) => {
@@ -35,6 +41,11 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
 
   const currentPhoto = destination.gallery[photoIdx] ?? destination.gallery[0];
   const totalPhotos = destination.gallery.length;
+  const valueBreakdown = calculateValueForMoney(
+    destination.startingPriceInr,
+    destination.popularityRating,
+    valuePriority
+  );
 
   return (
     <div
@@ -158,6 +169,77 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Listen on Spotify for this Destination */}
+          <PlaceSpotifyPlayer
+            placeName={destination.name}
+            searchContext={`${destination.name} ${destination.country}`}
+          />
+
+          {/* Value-for-Money Calculation Breakdown */}
+          <div className="bg-[#f7f5f0] rounded-2xl p-4 sm:p-5 space-y-3 border border-black/6">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#1d4738]">
+                  Value-for-Money Breakdown
+                </p>
+                <p className="text-xs text-[#5a6159] mt-0.5">
+                  Calculated from {formatINR(destination.startingPriceInr)} starting price &amp;{' '}
+                  <span className="inline-flex items-center gap-0.5 font-mono tabular-nums font-semibold text-[#141714]">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+                    {destination.popularityRating.toFixed(1)}
+                  </span>{' '}
+                  rating ({destination.reviewCount.toLocaleString('en-IN')} reviews)
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="font-mono tabular-nums text-xl font-bold text-[#1d4738]">
+                  {valueBreakdown.score.toFixed(1)} / 10
+                </span>
+                <p className="text-[11px] font-semibold text-[#4a5149]">
+                  {valueBreakdown.tierLabel}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-black/8">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#5a6159]">
+                    Price Efficiency ({valueBreakdown.priceWeightPct}%)
+                  </span>
+                  <span className="font-mono tabular-nums font-semibold text-[#141714]">
+                    {valueBreakdown.priceScore.toFixed(1)} / 10
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[#ebe5da] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[#1d4738]"
+                    style={{ width: `${Math.round(valueBreakdown.priceScore * 10)}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span className="text-[#5a6159]">
+                    Popularity Rating ({valueBreakdown.ratingWeightPct}%)
+                  </span>
+                  <span className="font-mono tabular-nums font-semibold text-[#141714]">
+                    {valueBreakdown.popularityScore.toFixed(1)} / 10
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[#ebe5da] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-[#1d4738]"
+                    style={{
+                      width: `${Math.round(valueBreakdown.popularityScore * 10)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="pt-4 border-t border-black/8 flex flex-wrap items-center justify-between gap-4">

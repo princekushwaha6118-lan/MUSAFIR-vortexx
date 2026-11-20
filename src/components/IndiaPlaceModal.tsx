@@ -6,15 +6,22 @@ import {
   Landmark,
   MapPin,
   Sparkles,
+  Star,
   Utensils,
   X,
 } from 'lucide-react';
 import { formatINR } from '../data/travelData.ts';
-import type { IndiaStateUT } from '../types.ts';
+import type { IndiaStateUT, ValuePriority } from '../types.ts';
+import {
+  calculateValueForMoney,
+  getIndiaPlacePopularity,
+} from '../utils/valueScore.ts';
 import { GuideAIPanel } from './GuideAIPanel.tsx';
+import { PlaceSpotifyPlayer } from './PlaceSpotifyPlayer.tsx';
 
 interface IndiaPlaceModalProps {
   place: IndiaStateUT | null;
+  valuePriority?: ValuePriority;
   onClose: () => void;
   onPlanTrip: (place: IndiaStateUT) => void;
 }
@@ -23,6 +30,7 @@ type ModalTab = 'places' | 'food' | 'guide';
 
 export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
   place,
+  valuePriority = 'balanced',
   onClose,
   onPlanTrip,
 }) => {
@@ -30,6 +38,13 @@ export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
   const [activeTab, setActiveTab] = useState<ModalTab>('places');
 
   if (!place) return null;
+
+  const pop = getIndiaPlacePopularity(place.id);
+  const valueBreakdown = calculateValueForMoney(
+    place.startingBudgetInr,
+    pop.rating,
+    valuePriority
+  );
 
   const photos = place.gallery.length > 0 ? place.gallery : [
     {
@@ -147,11 +162,20 @@ export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
           </div>
 
           {/* Unboxed Verified Metadata & Overview */}
-          <div className="space-y-2 border-b border-black/8 pb-5">
+          <div className="space-y-2.5 border-b border-black/8 pb-5">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-medium text-[#5a6159]">
               <span className="text-[#1d4738] font-semibold">Verified India Directory</span>
               <span aria-hidden="true">·</span>
               <span>{place.region}</span>
+              <span aria-hidden="true">·</span>
+              <span className="inline-flex items-center gap-1 font-mono tabular-nums font-semibold text-[#141714]">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                {pop.rating.toFixed(1)} ({pop.reviews.toLocaleString('en-IN')})
+              </span>
+              <span aria-hidden="true">·</span>
+              <span className="font-mono tabular-nums font-semibold text-[#1d4738]">
+                Value-for-Money: {valueBreakdown.score.toFixed(1)} / 10 ({valueBreakdown.tierLabel})
+              </span>
               <span aria-hidden="true">·</span>
               <span>Languages: {place.languages}</span>
               <span aria-hidden="true">·</span>
@@ -268,6 +292,12 @@ export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
           {activeTab === 'guide' && (
             <GuideAIPanel selectedPlace={place} compact />
           )}
+
+          {/* Spotify Music Player for Visited Place */}
+          <PlaceSpotifyPlayer
+            placeName={place.name}
+            searchContext={`${place.name} ${place.capital} India`}
+          />
 
           {/* Footer Booking Bar */}
           <div className="pt-4 border-t border-black/8 flex flex-wrap items-center justify-between gap-4">

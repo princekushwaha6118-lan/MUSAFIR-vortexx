@@ -6,6 +6,7 @@ import {
   Landmark,
   MapPin,
   Search,
+  Star,
   Utensils,
 } from 'lucide-react';
 import {
@@ -20,8 +21,13 @@ import {
   projectIndiaPoint,
 } from '../data/indiaStatesData.ts';
 import { formatINR } from '../data/travelData.ts';
-import type { IndiaRegion, IndiaStateUT } from '../types.ts';
+import type { IndiaRegion, IndiaStateUT, ValuePriority } from '../types.ts';
+import {
+  calculateValueForMoney,
+  getIndiaPlacePopularity,
+} from '../utils/valueScore.ts';
 import { BudgetPicker } from './BudgetPicker.tsx';
+import { GoogleIndiaMap } from './GoogleIndiaMap.tsx';
 import { GuideAIPanel } from './GuideAIPanel.tsx';
 
 interface ExploreIndiaSectionProps {
@@ -29,6 +35,7 @@ interface ExploreIndiaSectionProps {
   onBudgetChange: (budget: number | null) => void;
   matchingDestinationsCount: number;
   matchingPackagesCount: number;
+  valuePriority?: ValuePriority;
   onOpenPlace: (place: IndiaStateUT) => void;
 }
 
@@ -48,11 +55,13 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
   onBudgetChange,
   matchingDestinationsCount,
   matchingPackagesCount,
+  valuePriority = 'balanced',
   onOpenPlace,
 }) => {
   const [regionFilter, setRegionFilter] = useState<IndiaRegion>('All');
   const [kindFilter, setKindFilter] = useState<'All' | 'State' | 'Union Territory'>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortByValue, setSortByValue] = useState(false);
   const [showAllCards, setShowAllCards] = useState(false);
 
   const defaultFocused = useMemo(
@@ -63,6 +72,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
   );
   const [focusedPlace, setFocusedPlace] = useState<IndiaStateUT>(defaultFocused);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [mapMode, setMapMode] = useState<'atlas' | 'google'>('google');
 
   const budgetMatchingStatesCount = useMemo(
     () =>
@@ -74,7 +84,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
 
   const filteredPlaces = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return INDIA_STATES_AND_UTS.filter((place) => {
+    const matched = INDIA_STATES_AND_UTS.filter((place) => {
       const regionMatch = regionFilter === 'All' || place.region === regionFilter;
       const kindMatch = kindFilter === 'All' || place.kind === kindFilter;
       const budgetMatch =
@@ -92,7 +102,21 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
       );
       return inName || inCapital || inPlaces || inFoods;
     });
-  }, [regionFilter, kindFilter, maxBudgetInr, searchQuery]);
+    if (!sortByValue) return matched;
+    return [...matched].sort((a, b) => {
+      const scoreA = calculateValueForMoney(
+        a.startingBudgetInr,
+        getIndiaPlacePopularity(a.id).rating,
+        valuePriority
+      ).score;
+      const scoreB = calculateValueForMoney(
+        b.startingBudgetInr,
+        getIndiaPlacePopularity(b.id).rating,
+        valuePriority
+      ).score;
+      return scoreB - scoreA || a.startingBudgetInr - b.startingBudgetInr;
+    });
+  }, [regionFilter, kindFilter, maxBudgetInr, searchQuery, sortByValue, valuePriority]);
 
   const filteredIds = useMemo(
     () => new Set(filteredPlaces.map((p) => p.id)),
@@ -103,7 +127,8 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
     regionFilter !== 'All' ||
     kindFilter !== 'All' ||
     maxBudgetInr !== null ||
-    searchQuery.trim().length > 0;
+    searchQuery.trim().length > 0 ||
+    sortByValue;
   const visibleGridPlaces =
     isFiltered || showAllCards ? filteredPlaces : filteredPlaces.slice(0, 9);
 
@@ -112,6 +137,12 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
     [hoveredId]
   );
   const previewPlace = hoveredPlace ?? focusedPlace;
+  const previewPopularity = getIndiaPlacePopularity(previewPlace.id);
+  const previewValue = calculateValueForMoney(
+    previewPlace.startingBudgetInr,
+    previewPopularity.rating,
+    valuePriority
+  );
 
   return (
     <section
@@ -187,29 +218,74 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                 Interactive Map of India
               </h3>
               <p className="text-xs text-[#5a6159] mt-0.5">
-                Hover any dot to preview · Click to explore famous places &amp; local food
+                Hover or click any marker to preview famous places, food &amp; Value Score
               </p>
             </div>
 
-            <div className="flex items-center gap-4 text-xs font-medium text-[#4a5149]">
-              <span className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className="w-2.5 h-2.5 rounded-full bg-[#1d4738] inline-block"
-                />
-                States ({TOTAL_STATES_COUNT})
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className="w-2.5 h-2.5 rounded-full bg-[#b45309] inline-block"
-                />
-                Union Territories ({TOTAL_UTS_COUNT})
-              </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <div
+                className="inline-flex items-center p-1 rounded-full bg-[#ebe5da]"
+                role="tablist"
+                aria-label="Switch map view mode"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mapMode === 'google'}
+                  onClick={() => setMapMode('google')}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-colors ${
+                    mapMode === 'google'
+                      ? 'bg-[#141714] text-white'
+                      : 'text-[#4a5149] hover:text-[#141714]'
+                  }`}
+                >
+                  Google Maps
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mapMode === 'atlas'}
+                  onClick={() => setMapMode('atlas')}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-colors ${
+                    mapMode === 'atlas'
+                      ? 'bg-[#141714] text-white'
+                      : 'text-[#4a5149] hover:text-[#141714]'
+                  }`}
+                >
+                  Dot Atlas
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3 text-xs font-medium text-[#4a5149]">
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="w-2.5 h-2.5 rounded-full bg-[#1d4738] inline-block"
+                  />
+                  States ({TOTAL_STATES_COUNT})
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span
+                    aria-hidden="true"
+                    className="w-2.5 h-2.5 rounded-full bg-[#b45309] inline-block"
+                  />
+                  UTs ({TOTAL_UTS_COUNT})
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* SVG Geographic Map */}
+          {mapMode === 'google' ? (
+            <GoogleIndiaMap
+              places={INDIA_STATES_AND_UTS}
+              filteredIds={filteredIds}
+              selectedPlace={focusedPlace}
+              valuePriority={valuePriority}
+              onFocusPlace={(place) => setFocusedPlace(place)}
+              onOpenPlace={onOpenPlace}
+              onSwitchToAtlas={() => setMapMode('atlas')}
+            />
+          ) : (
           <div className="relative bg-[#f7f5f0] rounded-[22px] border border-black/6 overflow-hidden flex-1 flex items-center justify-center p-2 sm:p-4">
             <svg
               viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
@@ -392,6 +468,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
               })()}
             </svg>
           </div>
+          )}
 
           {/* All 28 States & 8 Union Territories Quick Dots */}
           <div className="mt-5 pt-4 border-t border-black/8 space-y-3">
@@ -422,7 +499,6 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                         type="button"
                         onMouseEnter={() => {
                           setHoveredId(p.id);
-                          setFocusedPlace(p);
                         }}
                         onMouseLeave={() => setHoveredId(null)}
                         onClick={() => {
@@ -466,7 +542,6 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                         type="button"
                         onMouseEnter={() => {
                           setHoveredId(p.id);
-                          setFocusedPlace(p);
                         }}
                         onMouseLeave={() => setHoveredId(null)}
                         onClick={() => {
@@ -549,6 +624,19 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                 </div>
               </div>
 
+              <div className="pt-2 border-t border-black/8 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span className="inline-flex items-center gap-1 font-mono tabular-nums font-semibold text-[#141714]">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                  {previewPopularity.rating.toFixed(1)}
+                  <span className="font-sans font-normal text-[#5a6159]">
+                    ({previewPopularity.reviews.toLocaleString('en-IN')})
+                  </span>
+                </span>
+                <span className="font-mono tabular-nums font-semibold text-[#1d4738]">
+                  Value Score: {previewValue.score.toFixed(1)} / 10 · {previewValue.tierLabel}
+                </span>
+              </div>
+
               <div className="flex items-center justify-between gap-3 pt-1">
                 <div>
                   <span className="text-[11px] uppercase tracking-wider text-[#5a6159] block">
@@ -622,6 +710,18 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
               })}
             </div>
 
+            <button
+              type="button"
+              onClick={() => setSortByValue((prev) => !prev)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap border transition-colors ${
+                sortByValue
+                  ? 'bg-[#1d4738] text-white border-[#1d4738]'
+                  : 'bg-[#f7f5f0] text-[#141714] border-black/10 hover:bg-[#ebe5da]'
+              }`}
+            >
+              {sortByValue ? 'Sorted: Best Value-for-Money' : 'Sort by Value Score'}
+            </button>
+
             <span className="text-xs font-mono tabular-nums text-[#5a6159] whitespace-nowrap">
               {filteredPlaces.length} verified
             </span>
@@ -652,7 +752,14 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visibleGridPlaces.map((place) => (
+              {visibleGridPlaces.map((place) => {
+                const pop = getIndiaPlacePopularity(place.id);
+                const val = calculateValueForMoney(
+                  place.startingBudgetInr,
+                  pop.rating,
+                  valuePriority
+                );
+                return (
                 <article
                   key={place.id}
                   className="group bg-white rounded-[24px] border border-black/8 overflow-hidden shadow-[0_8px_24px_rgba(20,23,20,0.04)] hover:shadow-[0_16px_40px_rgba(20,23,20,0.09)] transition-all duration-300 flex flex-col"
@@ -679,8 +786,15 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                   <div className="p-5 flex-1 flex flex-col justify-between gap-4">
                     <div className="space-y-2.5">
                       <div>
-                        <p className="text-xs font-medium text-[#5a6159]">
-                          Capital: {place.capital} · {place.bestSeason}
+                        <p className="text-xs font-medium text-[#5a6159] flex flex-wrap items-center gap-x-1.5">
+                          <span>Capital: {place.capital}</span>
+                          <span aria-hidden="true">·</span>
+                          <span className="inline-flex items-center gap-1 font-mono tabular-nums font-semibold text-[#141714]">
+                            <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+                            {pop.rating.toFixed(1)}
+                          </span>
+                          <span aria-hidden="true">·</span>
+                          <span>{place.bestSeason}</span>
                         </p>
                         <h3 className="font-editorial text-2xl font-semibold text-[#141714] mt-0.5">
                           {place.name}
@@ -715,31 +829,54 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                       </div>
                     </div>
 
-                    <div className="pt-3.5 border-t border-black/8 flex items-center justify-between gap-3">
-                      <div>
-                        <span className="text-[10px] uppercase tracking-wider text-[#5a6159] block">
-                          Starting from
-                        </span>
-                        <span className="font-mono tabular-nums text-base font-semibold text-[#141714]">
-                          {formatINR(place.startingBudgetInr)}
-                        </span>
+                    <div className="space-y-3">
+                      <div className="pt-2.5 border-t border-black/8 space-y-1">
+                        <div className="flex items-baseline justify-between gap-2 text-xs">
+                          <span className="font-semibold text-[#141714]">
+                            Value-for-Money ·{' '}
+                            <span className="font-medium text-[#5a6159]">
+                              {val.tierLabel}
+                            </span>
+                          </span>
+                          <span className="font-mono tabular-nums font-bold text-[#1d4738]">
+                            {val.score.toFixed(1)} / 10
+                          </span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-[#ebe5da] overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-[#1d4738]"
+                            style={{ width: `${Math.round(val.score * 10)}%` }}
+                          />
+                        </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFocusedPlace(place);
-                          onOpenPlace(place);
-                        }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-[#f7f5f0] hover:bg-[#1d4738] text-[#141714] hover:text-white border border-black/10 transition-colors cursor-pointer whitespace-nowrap shrink-0"
-                      >
-                        <span>Places &amp; Food</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="pt-2.5 border-t border-black/8 flex items-center justify-between gap-3">
+                        <div>
+                          <span className="text-[10px] uppercase tracking-wider text-[#5a6159] block">
+                            Starting from
+                          </span>
+                          <span className="font-mono tabular-nums text-base font-semibold text-[#141714]">
+                            {formatINR(place.startingBudgetInr)}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFocusedPlace(place);
+                            onOpenPlace(place);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-[#f7f5f0] hover:bg-[#1d4738] text-[#141714] hover:text-white border border-black/10 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+                        >
+                          <span>Places &amp; Food</span>
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </article>
-              ))}
+                );
+              })}
             </div>
 
             {!isFiltered && filteredPlaces.length > 9 && (

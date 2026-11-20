@@ -14,9 +14,8 @@ const NAV_LINKS = [
   { id: 'home', label: 'Home' },
   { id: 'destinations', label: 'Destinations' },
   { id: 'explore-india', label: 'Explore India' },
+  { id: 'soundtrack', label: 'Soundtrack' },
   { id: 'packages', label: 'Packages' },
-  { id: 'about', label: 'About Us' },
-  { id: 'contact', label: 'Contact' },
 ];
 
 export const Navbar: React.FC<NavbarProps> = ({
