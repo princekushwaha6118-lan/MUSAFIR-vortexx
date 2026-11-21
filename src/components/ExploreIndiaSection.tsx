@@ -1,25 +1,27 @@
 import React, { useMemo, useState } from 'react';
 import {
   ArrowUpRight,
+  Building2,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
   Landmark,
   MapPin,
   Search,
+  Sparkles,
   Star,
   Utensils,
 } from 'lucide-react';
 import {
-  ANDAMAN_ISLAND_POINTS,
-  INDIA_MAINLAND_PATH,
   INDIA_STATES_AND_UTS,
-  LAKSHADWEEP_ISLAND_POINTS,
   MAP_HEIGHT,
   MAP_WIDTH,
   TOTAL_STATES_COUNT,
   TOTAL_UTS_COUNT,
   projectIndiaPoint,
 } from '../data/indiaStatesData.ts';
+import { INDIA_STATE_BORDER_PATHS } from '../data/indiaStateBorders.ts';
+import { getDistrictsByStateId } from '../data/indiaDistrictsData.ts';
 import { formatINR } from '../data/travelData.ts';
 import type { IndiaRegion, IndiaStateUT, ValuePriority } from '../types.ts';
 import {
@@ -72,7 +74,31 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
   );
   const [focusedPlace, setFocusedPlace] = useState<IndiaStateUT>(defaultFocused);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [mapMode, setMapMode] = useState<'atlas' | 'google'>('google');
+  const [mapMode, setMapMode] = useState<'atlas' | 'google'>('atlas');
+  const [districtQuery, setDistrictQuery] = useState('');
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [districtGuideQuery, setDistrictGuideQuery] = useState<{
+    id: number;
+    text: string;
+  } | null>(null);
+
+  const selectStateOnMap = (place: IndiaStateUT) => {
+    setFocusedPlace(place);
+    setHoveredId(null);
+    setDistrictQuery('');
+    setSelectedDistrict(null);
+  };
+
+  const focusedDistricts = useMemo(
+    () => getDistrictsByStateId(focusedPlace.id),
+    [focusedPlace.id]
+  );
+
+  const visibleFocusedDistricts = useMemo(() => {
+    const q = districtQuery.trim().toLowerCase();
+    if (!q) return focusedDistricts;
+    return focusedDistricts.filter((d) => d.toLowerCase().includes(q));
+  }, [focusedDistricts, districtQuery]);
 
   const budgetMatchingStatesCount = useMemo(
     () =>
@@ -218,7 +244,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                 Interactive Map of India
               </h3>
               <p className="text-xs text-[#5a6159] mt-0.5">
-                Hover or click any marker to preview famous places, food &amp; Value Score
+                Touch any state to highlight its border and see visiting places &amp; favorite food
               </p>
             </div>
 
@@ -231,6 +257,19 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                 <button
                   type="button"
                   role="tab"
+                  aria-selected={mapMode === 'atlas'}
+                  onClick={() => setMapMode('atlas')}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-colors ${
+                    mapMode === 'atlas'
+                      ? 'bg-[#141714] text-white'
+                      : 'text-[#4a5149] hover:text-[#141714]'
+                  }`}
+                >
+                  Border &amp; Dots
+                </button>
+                <button
+                  type="button"
+                  role="tab"
                   aria-selected={mapMode === 'google'}
                   onClick={() => setMapMode('google')}
                   className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-colors ${
@@ -240,19 +279,6 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                   }`}
                 >
                   Google Maps
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={mapMode === 'atlas'}
-                  onClick={() => setMapMode('atlas')}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-colors ${
-                    mapMode === 'atlas'
-                      ? 'bg-[#141714] text-white'
-                      : 'text-[#4a5149] hover:text-[#141714]'
-                  }`}
-                >
-                  Dot Atlas
                 </button>
               </div>
 
@@ -286,187 +312,370 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
               onSwitchToAtlas={() => setMapMode('atlas')}
             />
           ) : (
-          <div className="relative bg-[#f7f5f0] rounded-[22px] border border-black/6 overflow-hidden flex-1 flex items-center justify-center p-2 sm:p-4">
-            <svg
-              viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
-              role="img"
-              aria-label="Interactive map of India with clickable dots for all 28 states and 8 union territories"
-              className="w-full h-auto max-h-[600px] select-none"
-            >
-              {/* Subtle Geographic Graticule */}
-              <g stroke="rgba(20,23,20,0.05)" strokeWidth="1" strokeDasharray="4 4">
-                {[140, 260, 380, 500].map((x) => (
-                  <line key={`vx-${x}`} x1={x} y1={20} x2={x} y2={MAP_HEIGHT - 20} />
-                ))}
-                {[140, 260, 380, 500, 620].map((y) => (
-                  <line key={`hy-${y}`} x1={20} y1={y} x2={MAP_WIDTH - 20} y2={y} />
-                ))}
-              </g>
-
-              {/* Water Context Labels */}
-              <text
-                x="110"
-                y="505"
-                fill="rgba(29,71,56,0.36)"
-                fontSize="11"
-                fontWeight="600"
-                letterSpacing="2"
+          <div className="space-y-4">
+            <div className="relative bg-[#f7f5f0] rounded-[22px] border border-black/6 overflow-hidden flex items-center justify-center p-2 sm:p-4">
+              <svg
+                viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+                role="img"
+                aria-label="Interactive India map with clickable state borders and dots for all 28 states and 8 union territories"
+                className="w-full h-auto max-h-[580px] select-none"
               >
-                ARABIAN SEA
-              </text>
-              <text
-                x="415"
-                y="495"
-                fill="rgba(29,71,56,0.36)"
-                fontSize="11"
-                fontWeight="600"
-                letterSpacing="2"
-              >
-                BAY OF BENGAL
-              </text>
-              <text
-                x="235"
-                y="678"
-                fill="rgba(29,71,56,0.36)"
-                fontSize="11"
-                fontWeight="600"
-                letterSpacing="2"
-              >
-                INDIAN OCEAN
-              </text>
-
-              {/* India Mainland Shape */}
-              <path
-                d={INDIA_MAINLAND_PATH}
-                fill="#ebe5da"
-                stroke="#1d4738"
-                strokeOpacity="0.4"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-
-              {/* Andaman & Nicobar Islands */}
-              <g fill="#ebe5da" stroke="#1d4738" strokeOpacity="0.45" strokeWidth="1.2">
-                {ANDAMAN_ISLAND_POINTS.map((isl, idx) => {
-                  const pt = projectIndiaPoint(isl.lat, isl.lon);
-                  return (
-                    <circle key={`and-${idx}`} cx={pt.x} cy={pt.y} r={isl.r} />
-                  );
-                })}
-              </g>
-
-              {/* Lakshadweep Islands */}
-              <g fill="#ebe5da" stroke="#1d4738" strokeOpacity="0.45" strokeWidth="1.2">
-                {LAKSHADWEEP_ISLAND_POINTS.map((isl, idx) => {
-                  const pt = projectIndiaPoint(isl.lat, isl.lon);
-                  return (
-                    <circle key={`lak-${idx}`} cx={pt.x} cy={pt.y} r={isl.r} />
-                  );
-                })}
-              </g>
-
-              {/* 36 Clickable State & Union Territory Dots */}
-              {INDIA_STATES_AND_UTS.map((place) => {
-                const pt = projectIndiaPoint(place.lat, place.lon);
-                const matches = filteredIds.has(place.id);
-                const isSelected = previewPlace.id === place.id;
-                const isUT = place.kind === 'Union Territory';
-                const dotFill = isUT ? '#b45309' : '#1d4738';
-
-                return (
-                  <g
-                    key={place.id}
-                    transform={`translate(${pt.x}, ${pt.y})`}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`Open ${place.name} (${place.kind}) — Capital: ${place.capital}`}
-                    className="cursor-pointer focus:outline-none"
-                    style={{ opacity: matches ? 1 : 0.22 }}
-                    onMouseEnter={() => {
-                      setHoveredId(place.id);
-                      setFocusedPlace(place);
-                    }}
-                    onMouseLeave={() => setHoveredId(null)}
-                    onFocus={() => {
-                      setHoveredId(place.id);
-                      setFocusedPlace(place);
-                    }}
-                    onBlur={() => setHoveredId(null)}
-                    onClick={() => {
-                      setFocusedPlace(place);
-                      onOpenPlace(place);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setFocusedPlace(place);
-                        onOpenPlace(place);
-                      }
-                    }}
+                <defs>
+                  <filter
+                    id="active-state-glow"
+                    x="-15%"
+                    y="-15%"
+                    width="130%"
+                    height="130%"
                   >
-                    {/* Generous invisible hit circle for easy clicking */}
-                    <circle r="13" fill="transparent" />
+                    <feDropShadow
+                      dx="0"
+                      dy="2"
+                      stdDeviation="3"
+                      floodColor="#141714"
+                      floodOpacity="0.22"
+                    />
+                  </filter>
+                </defs>
 
-                    {/* Active selection halo */}
-                    {isSelected && (
-                      <circle
-                        r="11"
-                        fill="none"
-                        stroke={dotFill}
-                        strokeWidth="2"
-                        strokeOpacity="0.45"
+                {/* All 36 Interactive State & Union Territory Borders (sorted so active state border paints cleanly on top) */}
+                {INDIA_STATES_AND_UTS.slice()
+                  .sort((a, b) => {
+                    const rank = (id: string) =>
+                      id === focusedPlace.id ? 2 : id === hoveredId ? 1 : 0;
+                    return rank(a.id) - rank(b.id);
+                  })
+                  .map((place) => {
+                    const borderPath = INDIA_STATE_BORDER_PATHS[place.id];
+                    if (!borderPath) return null;
+
+                    const matches = filteredIds.has(place.id);
+                    const isFocused = focusedPlace.id === place.id;
+                    const isHovered = hoveredId === place.id;
+                    const isUT = place.kind === 'Union Territory';
+
+                    const baseFill = isUT ? '#efe3d2' : '#ebe5da';
+                    const hoverFill = isUT ? '#f6dec2' : '#dce8e1';
+                    const activeFill = isUT ? '#efc796' : '#bfd8cb';
+
+                    const fill = isFocused
+                      ? activeFill
+                      : isHovered
+                      ? hoverFill
+                      : baseFill;
+
+                    const strokeColor = isUT ? '#b45309' : '#1d4738';
+                    const strokeWidth = isFocused ? 2.6 : isHovered ? 1.8 : 1.0;
+                    const strokeOpacity = isFocused ? 1 : isHovered ? 0.85 : 0.42;
+
+                    return (
+                      <path
+                        key={`border-${place.id}`}
+                        d={borderPath}
+                        fill={fill}
+                        stroke={strokeColor}
+                        strokeWidth={strokeWidth}
+                        strokeOpacity={strokeOpacity}
+                        strokeLinejoin="round"
+                        strokeLinecap="round"
+                        filter={isFocused ? 'url(#active-state-glow)' : undefined}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`Select ${place.name} (${place.kind}) to highlight its border and view visiting places and favorite food`}
+                        className="cursor-pointer transition-colors duration-150 focus:outline-none"
+                        style={{ opacity: matches ? 1 : 0.28 }}
+                        onMouseEnter={() => setHoveredId(place.id)}
+                        onMouseLeave={() =>
+                          setHoveredId((curr) => (curr === place.id ? null : curr))
+                        }
+                        onClick={() => selectStateOnMap(place)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            selectStateOnMap(place);
+                          }
+                        }}
                       />
-                    )}
+                    );
+                  })}
 
-                    {/* Visible place dot */}
-                    <circle
-                      r={isSelected ? 6.5 : 5}
-                      fill={dotFill}
-                      stroke="#ffffff"
-                      strokeWidth="1.8"
-                    />
-                  </g>
-                );
-              })}
+                {/* 36 Clickable State & Union Territory Dots */}
+                {INDIA_STATES_AND_UTS.map((place) => {
+                  const pt = projectIndiaPoint(place.lat, place.lon);
+                  const matches = filteredIds.has(place.id);
+                  const isSelected = previewPlace.id === place.id;
+                  const isUT = place.kind === 'Union Territory';
+                  const dotFill = isUT ? '#b45309' : '#1d4738';
 
-              {/* Floating Map Tooltip for Hovered / Focused Dot */}
-              {previewPlace && (() => {
-                const pt = projectIndiaPoint(previewPlace.lat, previewPlace.lon);
-                const flipLeft = pt.x > MAP_WIDTH * 0.62;
-                const boxX = flipLeft ? pt.x - 186 : pt.x + 12;
-                const boxY = Math.max(18, Math.min(MAP_HEIGHT - 64, pt.y - 24));
-                return (
-                  <g transform={`translate(${boxX}, ${boxY})`} pointerEvents="none">
-                    <rect
-                      width="174"
-                      height="46"
-                      rx="10"
-                      fill="#141714"
-                      fillOpacity="0.93"
-                    />
-                    <text
-                      x="11"
-                      y="19"
-                      fill="#ffffff"
-                      fontSize="11.5"
-                      fontWeight="600"
+                  return (
+                    <g
+                      key={place.id}
+                      transform={`translate(${pt.x}, ${pt.y})`}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Select ${place.name} (${place.kind}) — Capital: ${place.capital}`}
+                      className="cursor-pointer focus:outline-none"
+                      style={{ opacity: matches ? 1 : 0.24 }}
+                      onMouseEnter={() => setHoveredId(place.id)}
+                      onMouseLeave={() =>
+                        setHoveredId((curr) => (curr === place.id ? null : curr))
+                      }
+                      onFocus={() => setHoveredId(place.id)}
+                      onBlur={() =>
+                        setHoveredId((curr) => (curr === place.id ? null : curr))
+                      }
+                      onClick={() => selectStateOnMap(place)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          selectStateOnMap(place);
+                        }
+                      }}
                     >
-                      {previewPlace.name.length > 22
-                        ? `${previewPlace.name.slice(0, 21)}…`
-                        : previewPlace.name}
-                    </text>
-                    <text
-                      x="11"
-                      y="35"
-                      fill="rgba(255,255,255,0.75)"
-                      fontSize="9.5"
-                    >
-                      {previewPlace.kind} · Click dot to open
-                    </text>
-                  </g>
-                );
-              })()}
-            </svg>
+                      {/* Generous touch/click target */}
+                      <circle r="12" fill="transparent" />
+
+                      {/* Active selection halo */}
+                      {isSelected && (
+                        <circle
+                          r="10.5"
+                          fill="none"
+                          stroke={dotFill}
+                          strokeWidth="2"
+                          strokeOpacity="0.6"
+                        />
+                      )}
+
+                      {/* Visible place dot */}
+                      <circle
+                        r={isSelected ? 6 : 4.3}
+                        fill={dotFill}
+                        stroke="#ffffff"
+                        strokeWidth="1.6"
+                      />
+                    </g>
+                  );
+                })}
+
+                {/* Floating Map Tooltip for Hovered / Focused State */}
+                {previewPlace && (() => {
+                  const pt = projectIndiaPoint(previewPlace.lat, previewPlace.lon);
+                  const flipLeft = pt.x > MAP_WIDTH * 0.62;
+                  const boxX = flipLeft ? pt.x - 190 : pt.x + 12;
+                  const boxY = Math.max(18, Math.min(MAP_HEIGHT - 64, pt.y - 24));
+                  return (
+                    <g transform={`translate(${boxX}, ${boxY})`} pointerEvents="none">
+                      <rect
+                        width="178"
+                        height="46"
+                        rx="10"
+                        fill="#141714"
+                        fillOpacity="0.93"
+                      />
+                      <text
+                        x="11"
+                        y="19"
+                        fill="#ffffff"
+                        fontSize="11.5"
+                        fontWeight="600"
+                      >
+                        {previewPlace.name.length > 22
+                          ? `${previewPlace.name.slice(0, 21)}…`
+                          : previewPlace.name}
+                      </text>
+                      <text
+                        x="11"
+                        y="35"
+                        fill="rgba(255,255,255,0.78)"
+                        fontSize="9.5"
+                      >
+                        {previewPlace.kind} · {previewPlace.capital}
+                      </text>
+                    </g>
+                  );
+                })()}
+              </svg>
+            </div>
+
+            {/* Immediate Visiting Places & Favorite Food Panel for Selected/Touched State */}
+            <div className="bg-[#f7f5f0] rounded-[20px] border border-black/8 p-4 sm:p-5 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-black/8">
+                <div>
+                  <p className="text-[11px] font-medium text-[#5a6159]">
+                    <span className="font-semibold text-[#1d4738]">
+                      {focusedPlace.kind}
+                    </span>{' '}
+                    · Capital: {focusedPlace.capital} · Best: {focusedPlace.bestSeason}
+                  </p>
+                  <h4 className="font-editorial text-xl sm:text-2xl font-semibold text-[#141714]">
+                    {focusedPlace.name} — Visiting Places &amp; Favorite Food
+                  </h4>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onOpenPlace(focusedPlace)}
+                  className="bg-[#1d4738] hover:bg-[#15362a] text-white text-xs font-semibold px-4 py-2 rounded-full inline-flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0"
+                >
+                  <span>Full Photos &amp; Spotify</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Visiting Places */}
+                <div className="space-y-2.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#1d4738] flex items-center gap-1.5">
+                    <Landmark className="w-3.5 h-3.5 shrink-0" />
+                    <span>Visiting Places ({focusedPlace.famousPlaces.length})</span>
+                  </p>
+                  <ul className="space-y-2">
+                    {focusedPlace.famousPlaces.map((spot) => (
+                      <li
+                        key={spot.name}
+                        className="bg-white rounded-xl p-3 border border-black/6 space-y-1"
+                      >
+                        <div className="flex items-baseline justify-between gap-2">
+                          <p className="text-xs sm:text-sm font-semibold text-[#141714]">
+                            {spot.name}
+                          </p>
+                          <span className="text-[11px] text-[#5a6159] whitespace-nowrap shrink-0">
+                            {spot.city}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#5a6159] leading-relaxed">
+                          {spot.description}
+                        </p>
+                        <p className="text-[11px] font-medium text-[#1d4738]">
+                          {spot.category} · Best time: {spot.bestTime}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Favorite Food */}
+                <div className="space-y-2.5">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#b45309] flex items-center gap-1.5">
+                    <Utensils className="w-3.5 h-3.5 shrink-0" />
+                    <span>Favorite Food ({focusedPlace.favoriteFoods.length})</span>
+                  </p>
+                  <ul className="space-y-2">
+                    {focusedPlace.favoriteFoods.map((dish) => (
+                      <li
+                        key={dish.name}
+                        className="bg-white rounded-xl p-3 border border-black/6 space-y-1"
+                      >
+                        <div className="flex items-baseline justify-between gap-2">
+                          <p className="text-xs sm:text-sm font-semibold text-[#141714]">
+                            {dish.name}
+                          </p>
+                          <span className="text-[11px] font-medium text-[#b45309] whitespace-nowrap shrink-0">
+                            {dish.type}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#5a6159] leading-relaxed">
+                          {dish.description}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              {/* Districts of Selected / Touched State */}
+              <div className="pt-4 border-t border-black/8 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[#1d4738] flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 shrink-0" />
+                    <span className="tabular-nums">
+                      Districts of {focusedPlace.name} ({focusedDistricts.length})
+                    </span>
+                  </p>
+
+                  {focusedDistricts.length > 8 && (
+                    <div className="relative w-full sm:w-56">
+                      <Search className="w-3.5 h-3.5 text-[#5a6159] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={districtQuery}
+                        onChange={(e) => setDistrictQuery(e.target.value)}
+                        placeholder={`Filter ${focusedPlace.name} districts...`}
+                        aria-label={`Filter districts in ${focusedPlace.name}`}
+                        className="w-full bg-white border border-black/10 rounded-full pl-8 pr-3 py-1.5 text-xs text-[#141714] placeholder:text-[#7c837a] focus:outline-none focus:border-[#1d4738]"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {visibleFocusedDistricts.length === 0 ? (
+                  <p className="text-xs text-[#5a6159]">
+                    No district matched “{districtQuery}” in {focusedPlace.name}.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 max-h-48 overflow-y-auto pr-1">
+                    {visibleFocusedDistricts.map((district) => {
+                      const active = selectedDistrict === district;
+                      return (
+                        <button
+                          key={district}
+                          type="button"
+                          onClick={() =>
+                            setSelectedDistrict((curr) =>
+                              curr === district ? null : district
+                            )
+                          }
+                          title={district}
+                          className={`text-left text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-colors cursor-pointer truncate ${
+                            active
+                              ? 'bg-[#1d4738] text-white border-[#1d4738]'
+                              : 'bg-white text-[#141714] border-black/8 hover:bg-[#e7ede9]'
+                          }`}
+                        >
+                          {district}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {selectedDistrict && (
+                  <div className="bg-white rounded-xl border border-black/8 px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-xs text-[#141714]">
+                      <span className="font-semibold">{selectedDistrict}</span>{' '}
+                      <span className="text-[#5a6159]">
+                        · {focusedPlace.name} District
+                      </span>
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDistrictGuideQuery({
+                            id: Date.now(),
+                            text: `What are the top visiting places and favorite local foods in ${selectedDistrict} district, ${focusedPlace.name}, India?`,
+                          })
+                        }
+                        className="bg-[#1d4738] hover:bg-[#15362a] text-white text-[11px] font-semibold px-3 py-1.5 rounded-full inline-flex items-center gap-1 cursor-pointer whitespace-nowrap shrink-0 transition-colors"
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        <span>Places &amp; Food in {selectedDistrict}</span>
+                      </button>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                          `${selectedDistrict}, ${focusedPlace.name}, India`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-[#f7f5f0] hover:bg-[#ebe5da] text-[#141714] border border-black/10 text-[11px] font-semibold px-3 py-1.5 rounded-full inline-flex items-center gap-1 whitespace-nowrap shrink-0 transition-colors"
+                      >
+                        <span>Google Maps</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
           )}
 
@@ -499,6 +708,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                         type="button"
                         onMouseEnter={() => {
                           setHoveredId(p.id);
+                          if (mapMode === 'atlas') setFocusedPlace(p);
                         }}
                         onMouseLeave={() => setHoveredId(null)}
                         onClick={() => {
@@ -542,6 +752,7 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
                         type="button"
                         onMouseEnter={() => {
                           setHoveredId(p.id);
+                          if (mapMode === 'atlas') setFocusedPlace(p);
                         }}
                         onMouseLeave={() => setHoveredId(null)}
                         onClick={() => {
@@ -660,7 +871,10 @@ export const ExploreIndiaSection: React.FC<ExploreIndiaSectionProps> = ({
           </div>
 
           {/* MUSAFIR Guide AI Panel */}
-          <GuideAIPanel selectedPlace={previewPlace} />
+          <GuideAIPanel
+            selectedPlace={previewPlace}
+            externalQuery={districtGuideQuery}
+          />
         </div>
       </div>
 

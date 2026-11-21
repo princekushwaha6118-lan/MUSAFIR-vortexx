@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, Search, X } from 'lucide-react';
 import type { UserSession } from '../types.ts';
 
 interface NavbarProps {
   user: UserSession | null;
   onNavigate: (sectionId: string) => void;
+  onOpenSearch: () => void;
   onOpenAuth: () => void;
   onLogout: () => void;
   onBookTrip: () => void;
@@ -21,6 +22,7 @@ const NAV_LINKS = [
 export const Navbar: React.FC<NavbarProps> = ({
   user,
   onNavigate,
+  onOpenSearch,
   onOpenAuth,
   onLogout,
   onBookTrip,
@@ -68,7 +70,17 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right Actions */}
-        <div className="hidden lg:flex items-center gap-4 shrink-0">
+        <div className="hidden lg:flex items-center gap-3.5 shrink-0">
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            aria-label="Search places across India and destinations"
+            title="Search places (Ctrl+K)"
+            className="w-10 h-10 rounded-full bg-white/90 hover:bg-white border border-black/10 hover:border-[#1d4738] text-[#141714] hover:text-[#1d4738] grid place-items-center cursor-pointer transition-colors shadow-xs shrink-0"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+
           {user ? (
             <button
               type="button"
@@ -97,8 +109,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         </div>
 
-        {/* Mobile Hamburger */}
-        <div className="flex lg:hidden items-center gap-2.5">
+        {/* Mobile Search, CTA & Hamburger */}
+        <div className="flex lg:hidden items-center gap-2">
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            aria-label="Search places"
+            className="w-9 h-9 rounded-full bg-white/90 border border-black/10 grid place-items-center text-[#141714] cursor-pointer shrink-0"
+          >
+            <Search className="w-4 h-4" />
+          </button>
           <button
             type="button"
             onClick={onBookTrip}

@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import {
+  Building2,
   ChevronLeft,
   ChevronRight,
   Compass,
+  ExternalLink,
   Landmark,
   MapPin,
+  Search,
   Sparkles,
   Star,
   Utensils,
   X,
 } from 'lucide-react';
+import { getDistrictsByStateId } from '../data/indiaDistrictsData.ts';
 import { formatINR } from '../data/travelData.ts';
 import type { IndiaStateUT, ValuePriority } from '../types.ts';
 import {
@@ -26,7 +30,7 @@ interface IndiaPlaceModalProps {
   onPlanTrip: (place: IndiaStateUT) => void;
 }
 
-type ModalTab = 'places' | 'food' | 'guide';
+type ModalTab = 'places' | 'food' | 'districts' | 'guide';
 
 export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
   place,
@@ -36,8 +40,20 @@ export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
 }) => {
   const [photoIdx, setPhotoIdx] = useState(0);
   const [activeTab, setActiveTab] = useState<ModalTab>('places');
+  const [districtFilter, setDistrictFilter] = useState('');
+  const [districtGuideQuery, setDistrictGuideQuery] = useState<{
+    id: number;
+    text: string;
+  } | null>(null);
 
   if (!place) return null;
+
+  const districts = getDistrictsByStateId(place.id);
+  const filteredDistricts = districtFilter.trim()
+    ? districts.filter((d) =>
+        d.toLowerCase().includes(districtFilter.trim().toLowerCase())
+      )
+    : districts;
 
   const pop = getIndiaPlacePopularity(place.id);
   const valueBreakdown = calculateValueForMoney(
@@ -225,6 +241,20 @@ export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
             <button
               type="button"
               role="tab"
+              aria-selected={activeTab === 'districts'}
+              onClick={() => setActiveTab('districts')}
+              className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition-all ${
+                activeTab === 'districts'
+                  ? 'bg-[#141714] text-white shadow-sm'
+                  : 'text-[#4a5149] hover:text-[#141714]'
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span className="tabular-nums">Districts ({districts.length})</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
               aria-selected={activeTab === 'guide'}
               onClick={() => setActiveTab('guide')}
               className={`px-4 py-2 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 cursor-pointer transition-all ${
@@ -289,8 +319,70 @@ export const IndiaPlaceModal: React.FC<IndiaPlaceModalProps> = ({
             </div>
           )}
 
+          {activeTab === 'districts' && (
+            <div className="bg-[#f7f5f0] rounded-2xl p-5 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#1d4738] tabular-nums">
+                  All {districts.length} Districts of {place.name} (Click any district for Guide AI)
+                </p>
+                {districts.length > 8 && (
+                  <div className="relative w-full sm:w-60">
+                    <Search className="w-3.5 h-3.5 text-[#5a6159] absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={districtFilter}
+                      onChange={(e) => setDistrictFilter(e.target.value)}
+                      placeholder={`Search ${place.name} districts...`}
+                      aria-label={`Search districts in ${place.name}`}
+                      className="w-full bg-white border border-black/10 rounded-full pl-8 pr-3 py-1.5 text-xs text-[#141714] placeholder:text-[#7c837a] focus:outline-none focus:border-[#1d4738]"
+                    />
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+                {filteredDistricts.map((district) => (
+                  <div
+                    key={district}
+                    className="bg-white rounded-xl border border-black/8 px-3 py-2 flex items-center justify-between gap-1.5"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDistrictGuideQuery({
+                          id: Date.now(),
+                          text: `Top visiting places and favorite food in ${district} district, ${place.name}, India`,
+                        });
+                        setActiveTab('guide');
+                      }}
+                      className="text-left text-xs font-medium text-[#141714] hover:text-[#1d4738] truncate cursor-pointer flex-1"
+                      title={`Ask Guide AI about ${district}`}
+                    >
+                      {district}
+                    </button>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        `${district}, ${place.name}, India`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open ${district} on Google Maps`}
+                      className="text-[#5a6159] hover:text-[#1d4738] shrink-0"
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === 'guide' && (
-            <GuideAIPanel selectedPlace={place} compact />
+            <GuideAIPanel
+              selectedPlace={place}
+              compact
+              externalQuery={districtGuideQuery}
+            />
           )}
 
           {/* Spotify Music Player for Visited Place */}

@@ -13,6 +13,7 @@ import {
 import type { MapMouseEvent } from '@vis.gl/react-google-maps';
 import {
   ArrowUpRight,
+  Building2,
   Crosshair,
   ExternalLink,
   Landmark,
@@ -21,6 +22,7 @@ import {
   Utensils,
   X,
 } from 'lucide-react';
+import { getDistrictsByStateId } from '../data/indiaDistrictsData.ts';
 import { formatINR } from '../data/travelData.ts';
 import type {
   GroundingPlaceSource,
@@ -201,11 +203,55 @@ const FavoritePlacesOverlayCard: React.FC<{
       </div>
 
       {/* Favorite Local Food */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[#4a5149] pt-1 border-t border-black/8">
-        <Utensils className="w-3.5 h-3.5 text-[#1d4738] shrink-0" />
-        <span className="font-semibold text-[#141714]">Favorite Food:</span>
-        <span>{spot.place.favoriteFoods.map((f) => f.name).join(' · ')}</span>
+      <div className="pt-1.5 border-t border-black/8 space-y-1">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-[#b45309] flex items-center gap-1">
+          <Utensils className="w-3 h-3 shrink-0" />
+          <span>Favorite Food of {spot.place.name}</span>
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {spot.place.favoriteFoods.map((food) => (
+            <div
+              key={food.name}
+              className="bg-[#f7f5f0] rounded-xl p-2 text-left"
+            >
+              <p className="text-xs font-semibold text-[#141714] truncate">
+                {food.name}
+              </p>
+              <p className="text-[10px] font-medium text-[#b45309] truncate">
+                {food.type}
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* State Districts */}
+      {(() => {
+        const districts = getDistrictsByStateId(spot.place.id);
+        if (districts.length === 0) return null;
+        return (
+          <div className="pt-1.5 border-t border-black/8 space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-[#1d4738] flex items-center gap-1 tabular-nums">
+              <Building2 className="w-3 h-3 shrink-0" />
+              <span>Districts of {spot.place.name} ({districts.length})</span>
+            </p>
+            <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto pr-1">
+              {districts.map((dist) => (
+                <button
+                  key={dist}
+                  type="button"
+                  onClick={() =>
+                    onFocusLandmark?.(`${dist} district, ${spot.place.name}, India`)
+                  }
+                  className="text-[11px] font-medium text-[#141714] bg-[#f7f5f0] hover:bg-[#e7ede9] border border-black/8 px-2 py-0.5 rounded-md cursor-pointer transition-colors"
+                >
+                  {dist}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Live Google Maps Nearby Results */}
       {spot.loadingNearby ? (
@@ -540,7 +586,7 @@ const LiveGoogleMapsEmbed: React.FC<{
 
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] font-semibold text-[#5a6159] mr-1">
-            Favorite Spots Here:
+            Visiting Places:
           </span>
           {selectedPlace.famousPlaces.map((fp) => (
             <button
@@ -561,6 +607,42 @@ const LiveGoogleMapsEmbed: React.FC<{
             </button>
           ))}
         </div>
+
+        <p className="text-xs text-[#4a5149] flex flex-wrap items-center gap-x-1.5">
+          <Utensils className="w-3.5 h-3.5 text-[#b45309] shrink-0" />
+          <span className="font-semibold text-[#141714]">Favorite Food:</span>
+          <span>{selectedPlace.favoriteFoods.map((f) => f.name).join(' · ')}</span>
+        </p>
+
+        {(() => {
+          const districts = getDistrictsByStateId(selectedPlace.id);
+          if (districts.length === 0) return null;
+          return (
+            <div className="pt-2 border-t border-black/8 space-y-1.5">
+              <p className="text-[11px] font-semibold text-[#1d4738] flex items-center gap-1.5 tabular-nums">
+                <Building2 className="w-3.5 h-3.5 shrink-0" />
+                <span>
+                  Districts of {selectedPlace.name} ({districts.length}) — Tap to focus on Google Maps:
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+                {districts.map((dist) => (
+                  <button
+                    key={dist}
+                    type="button"
+                    onClick={() => {
+                      setLandmarkQuery(`${dist} district, ${selectedPlace.name}, India`);
+                      setViewScope('landmark');
+                    }}
+                    className="text-[11px] font-medium text-[#141714] bg-[#f7f5f0] hover:bg-[#e7ede9] border border-black/8 px-2.5 py-1 rounded-lg cursor-pointer transition-colors"
+                  >
+                    {dist}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

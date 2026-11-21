@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { DestinationsSection } from './components/DestinationsSection.tsx';
 import { ExploreIndiaSection } from './components/ExploreIndiaSection.tsx';
 import { FooterSection } from './components/FooterSection.tsx';
@@ -6,6 +6,7 @@ import { HeroSection } from './components/HeroSection.tsx';
 import { IndiaPlaceModal } from './components/IndiaPlaceModal.tsx';
 import { Navbar } from './components/Navbar.tsx';
 import { PackagesSection } from './components/PackagesSection.tsx';
+import { PlaceSearchModal } from './components/PlaceSearchModal.tsx';
 import { TestimonialsSection } from './components/TestimonialsSection.tsx';
 import { TravelSoundtrackSection } from './components/TravelSoundtrackSection.tsx';
 import {
@@ -44,6 +45,7 @@ export default function App() {
   // Interactive modals & user session
   const [user, setUser] = useState<UserSession | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [exploredDestination, setExploredDestination] =
     useState<MusafirDestination | null>(null);
   const [selectedIndiaPlace, setSelectedIndiaPlace] =
@@ -61,6 +63,17 @@ export default function App() {
     undefined
   );
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const showToast = useCallback((message: string) => {
     setToast(message);
@@ -141,6 +154,7 @@ export default function App() {
       <Navbar
         user={user}
         onNavigate={scrollToSection}
+        onOpenSearch={() => setSearchOpen(true)}
         onOpenAuth={() => setAuthOpen(true)}
         onLogout={() => {
           setUser(null);
@@ -267,6 +281,23 @@ export default function App() {
         onAuthSuccess={(signedIn) => {
           setUser(signedIn);
           showToast(`Welcome to MUSAFIR, ${signedIn.name}.`);
+        }}
+      />
+
+      <PlaceSearchModal
+        open={searchOpen}
+        valuePriority={valuePriority}
+        onClose={() => setSearchOpen(false)}
+        onSelectDestination={(dest) => {
+          setExploredDestination(dest);
+          setLastVisitedPlaceName(dest.name);
+        }}
+        onSelectIndiaPlace={(place) => {
+          setSelectedIndiaPlace(place);
+          setLastVisitedPlaceName(place.name);
+        }}
+        onSelectPackage={(pkg) => {
+          handleOpenBookingForPkg(pkg);
         }}
       />
 

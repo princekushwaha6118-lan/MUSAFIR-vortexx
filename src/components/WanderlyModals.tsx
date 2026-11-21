@@ -19,6 +19,7 @@ import type {
   ValuePriority,
 } from '../types.ts';
 import { calculateValueForMoney } from '../utils/valueScore.ts';
+import { DestinationWeatherWidget } from './DestinationWeatherWidget.tsx';
 import { PlaceSpotifyPlayer } from './PlaceSpotifyPlayer.tsx';
 
 /* ---------------- Destination Detail & 4–5 Photo Gallery Modal ---------------- */
@@ -170,6 +171,9 @@ export const DestinationModal: React.FC<DestinationModalProps> = ({
               ))}
             </ul>
           </div>
+
+          {/* 5-Day Live Weather Forecast */}
+          <DestinationWeatherWidget destination={destination} />
 
           {/* Listen on Spotify for this Destination */}
           <PlaceSpotifyPlayer

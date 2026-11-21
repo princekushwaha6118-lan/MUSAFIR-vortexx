@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Compass,
   ExternalLink,
@@ -17,11 +17,13 @@ import type {
 interface GuideAIPanelProps {
   selectedPlace: IndiaStateUT | null;
   compact?: boolean;
+  externalQuery?: { id: number; text: string } | null;
 }
 
 export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
   selectedPlace,
   compact = false,
+  externalQuery = null,
 }) => {
   const [messages, setMessages] = useState<GuideMessage[]>([]);
   const [input, setInput] = useState('');
@@ -32,6 +34,7 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
     null
   );
   const [locating, setLocating] = useState(false);
+  const lastHandledExternalIdRef = useRef<number | null>(null);
 
   const suggestedPrompts = selectedPlace
     ? [
@@ -151,6 +154,18 @@ export const GuideAIPanel: React.FC<GuideAIPanelProps> = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (
+      externalQuery &&
+      externalQuery.id !== lastHandledExternalIdRef.current &&
+      externalQuery.text.trim() &&
+      !loading
+    ) {
+      lastHandledExternalIdRef.current = externalQuery.id;
+      askGuide(externalQuery.text);
+    }
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
